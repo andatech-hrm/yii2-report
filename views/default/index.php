@@ -1,12 +1,42 @@
-<div class="report-default-index">
-    <h1><?= $this->context->action->uniqueId ?></h1>
-    <p>
-        This is the view content for action "<?= $this->context->action->id ?>".
-        The action belongs to the controller "<?= get_class($this->context) ?>"
-        in the "<?= $this->context->module->id ?>" module.
-    </p>
-    <p>
-        You may customize this page by editing the following file:<br>
-        <code><?= __FILE__ ?></code>
-    </p>
-</div>
+<div class="row">
+                      <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                        <div class="tile-stats">
+                          <div class="icon"><i class="fa fa-caret-square-o-right"></i>
+                          </div>
+                          <div class="count">179</div>
+
+                          <h3>New Sign ups</h3>
+                          <p>Lorem ipsum psdea itgum rixt.</p>
+                        </div>
+                      </div>
+                      <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                        <div class="tile-stats">
+                          <div class="icon"><i class="fa fa-comments-o"></i>
+                          </div>
+                          <div class="count">179</div>
+
+                          <h3>New Sign ups</h3>
+                          <p>Lorem ipsum psdea itgum rixt.</p>
+                        </div>
+                      </div>
+                      <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                        <div class="tile-stats">
+                          <div class="icon"><i class="fa fa-sort-amount-desc"></i>
+                          </div>
+                          <div class="count">179</div>
+
+                          <h3>New Sign ups</h3>
+                          <p>Lorem ipsum psdea itgum rixt.</p>
+                        </div>
+                      </div>
+                      <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                        <div class="tile-stats">
+                          <div class="icon"><i class="fa fa-check-square-o"></i>
+                          </div>
+                          <div class="count">179</div>
+
+                          <h3>New Sign ups</h3>
+                          <p>Lorem ipsum psdea itgum rixt.</p>
+                        </div>
+                      </div>
+                    </div>

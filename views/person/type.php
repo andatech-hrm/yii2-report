@@ -3,7 +3,7 @@ use miloschuman\highcharts\Highcharts;
 use yii\web\JsExpression;
 
 $this->title =  Yii::t('andahrm/report', 'Person Type');
-$this->params['breadcrumbs'][] = ['label' =>  Yii::t('andahrm/report', 'Report'), 'url' => ['/report/index']];
+$this->params['breadcrumbs'][] = ['label' =>  Yii::t('andahrm/report', 'Report'), 'url' => ['/report/default']];
 $this->params['breadcrumbs'][] = ['label' =>  Yii::t('andahrm/report', 'Person'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>

@@ -6,7 +6,7 @@ use Yii;
 use yii\web\Controller;
 use andahrm\person\models\Person;
 use andahrm\positionSalary\models\PersonPosition;
-use andahrm\positionSalary\models\PersonPositionSalary;
+use andahrm\report\models\PersonPositionSalary;
 use andahrm\report\models\PersonType;
 use yii\helpers\ArrayHelper;
 /**
@@ -18,12 +18,11 @@ class PersonController extends Controller
      * Renders the index view for the module
      * @return string
      */
-    public function actions()
+     public function actions()
     {
-        
-        $this->layout = 'person-menu-left';
+        $this->layout='person-menu-left';
     }
-    
+     
     public function actionIndex()
     {
         return $this->render('index');
@@ -41,7 +40,7 @@ class PersonController extends Controller
         return $this->render('type', ['model' => $model]);
     }
     
-    public function actionGender()
+    public function actionGender_mad()
     {
         
         $model= new PersonType(['scenario'=>'report']);
@@ -55,7 +54,7 @@ class PersonController extends Controller
                 //$modelType->scenario = 'report';
                 //$modelType = ArrayHelper::index($modelType,'id');
                 
-                $modelGender = Person::find()->select('gender')->distinct()->groupBy('gender')->orderBy(['gender'=>SORT_DESC])->all();
+                $modelGender = Person::find()->select('gender')->distinct()->groupBy('gender')->orderBy('gender')->all();
                 $modelGender = ArrayHelper::map($modelGender,'gender','genderText');
                 $newGender = [];
                 foreach($modelType as $type){
@@ -85,10 +84,43 @@ class PersonController extends Controller
                 
         
         
-        return $this->render('gender', [
+        return $this->render('gender_mad', [
             'model'=>$model,
             'models' => $modelType,
             'modelGender'=>$newGender
         ]);
+    }
+    
+    public function actionGender(){
+        $models['person-type'] = PersonType::find()->all();
+        $models['year-list'] = PersonPositionSalary::find()
+        ->select('YEAR(`adjust_date`) as year')
+        ->groupBy('YEAR(`adjust_date`)')->asArray()->all();
+        $models['year-search'] = new PersonPositionSalary();
+        $models['year-search']->load(Yii::$app->request->get());
+        
+        foreach ($models['person-type'] as $key => $personType) :
+            $query = PersonPositionSalary::find()
+            ->select("
+            person.firstname_th, 
+            SUM(CASE WHEN person.gender = 'm' THEN 1 ELSE 0 END) as MaleCount,
+            SUM(CASE WHEN person.gender = 'f' THEN 1 ELSE 0 END) as FemaleCount,
+            ")
+            ->joinWith('position')
+            ->joinWith('user')
+            ->where(['position.person_type_id' => $personType->id]);
+            if($models['year-search']->year !== null && !empty($models['year-search']->year)){
+                $y = intval($models['year-search']->year);
+                $begin = ($y-1).'-04-01';
+                $end = $y.'-03-31';
+                $query = $query->andwhere(['between', 'DATE(person_position_salary.adjust_date)', $begin, $end]);
+            }
+            $models['person-position-salary'][$key] = $query->asArray()
+            ->one();
+        endforeach;
+        
+        //Yii::$app->end();
+
+        return $this->render('gender', ['models' => $models]);
     }
 }

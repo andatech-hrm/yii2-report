@@ -2,98 +2,121 @@
 use yii\helpers\ArrayHelper;
 use miloschuman\highcharts\Highcharts;
 use yii\web\JsExpression;
-use andahrm\structure\models\FiscalYear;
-use andahrm\report\models\PersonType;
-
-
-$this->title =  Yii::t('andahrm/report', 'Gender');
-$this->params['breadcrumbs'][] = ['label' =>  Yii::t('andahrm/report', 'Report'), 'url' => ['/report/index']];
-$this->params['breadcrumbs'][] = ['label' =>  Yii::t('andahrm/report', 'Person'), 'url' => ['index']];
-$this->params['breadcrumbs'][] = $this->title;
+use yii\bootstrap\ActiveForm;
+?>
+<?php
+foreach ($models['person-type'] as $key => $personType) :
+    $gender = $models['person-position-salary'][$key];
+    $arr[] = [
+        'title' => $personType->title,
+        'male' => $gender['MaleCount']?intval($gender['MaleCount']):0,
+        'female' => $gender['FemaleCount']?intval($gender['FemaleCount']):0,
+        'sum' => $gender['MaleCount'] + $gender['FemaleCount']
+    ];
+endforeach;
 ?>
 
-<?php  echo $this->render('_search', ['model' => $model]); ?>
-
-
-<table class="table table-striped" id='datatable'>
-    <thead>
-        <tr>
-            <th>ประเภท</th>
-            
-            <?php foreach($modelGender as $v):?>
-            <th><?=$v['title']?></th>
-            <?php endforeach;?>
-            <th>รวม</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php 
-        $totalCol=[];
-       
-        foreach($models as $type) : 
-        $totalRow=0;
-        ?>
-        <tr>
-            <th><?= $type->title; ?></th>
-            <?php foreach($modelGender as $k=> $v):
-                $totalRow += $type->gender[$k]['count'];
-                $totalCol[$k] += $type->gender[$k]['count'];
-            ?>
-            <td><?=$type->gender[$k]['count']?></td>
-            <?php endforeach;?>
-            <th><?=$totalRow?></th>
-        </tr>
-        <?php endforeach; ?>
-    </tbody>
-    
-    <tfooter>
-        <tr>
-            <td>
-                <?=Yii::t('andahrm','Total')?>
-            </td>
-            <?php foreach($modelGender as $k=> $v):?>
-            <td><?=$totalCol[$k]?></td>
-            <?php endforeach;?>
-            <td><?=array_sum($totalCol)?></td>
-            
-        </tr>
-    </tfooter>
-</table>
-
+<?php
+$form = ActiveForm::begin([
+    'action' => [$this->context->action->id],
+    'method' => 'get',
+    'options' => ['data-pjax' => true ],
+    'layout' => 'horizontal',
+    'fieldConfig' => [
+        'template' => "{label}\n{beginWrapper}\n{input}\n{hint}\n{error}\n{endWrapper}",
+        'horizontalCssClasses' => [
+            'label' => 'col-sm-4',
+            'offset' => 'col-sm-offset-4',
+            'wrapper' => 'col-sm-8',
+            'error' => '',
+            'hint' => '',
+        ],
+    ],
+]);
+echo $form->field($models['year-search'], 'year')->dropDownList(ArrayHelper::map($models['year-list'], 'year', 'year'), [
+    'prompt' => '--ทั้งหมด--',
+    'onchange'=>'this.form.submit()'
+])->label('ปีงบประมาณ');
+ActiveForm::end();
+?>
 
 <?php
-$data = [];
+// print_r(ArrayHelper::getColumn($arr, 'title'));
 
 echo Highcharts::widget([
     'options' => [
         'chart' => [
             'type' => 'column',
         ],
-        'data' => [
-            'table' => 'datatable'
+        'title' => ['text' => 'ประเภทบุคลากร '.$models['year-search']->year],
+        'credits' => [
+            'enabled' => false
         ],
-        'title' => ['text' => 'อัตตราส่วนตำแหน่งแบ่งตามประเภ'],
+        'xAxis' => [
+            'categories' => ArrayHelper::getColumn($arr, 'title'),
+            'crosshair' => true
+        ],
         'yAxis' => [
-            'allowDecimals' => false,
+            'min' => 0,
             'title' => [
-                'text' => 'Units'
+                'text' => 'คน'
             ]
         ],
         'tooltip' => [
-            'formatter' => new JsExpression("function () {
-                return '<b>' + this.series.name + '</b><br/>' +
-                    this.point.y + ' ' + this.point.name.toLowerCase();
-            }")
+            'headerFormat' => '<span style="font-size:10px">{point.key}</span><table>',
+            'pointFormat' => '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+            'footerFormat' => '</table>',
+            'shared' => true,
+            'useHTML' => true
         ],
         'plotOptions' => [
-            'series' => [
-                'connectNulls' => false
+            'column' => [
+                'pointPadding' => 0.2,
+                'borderWidth' => 0
             ]
+        ],
+        'series' => [
+            ['name' => 'ชาย', 'data' => ArrayHelper::getColumn($arr, 'male'), 'color' => '#368BC1'],
+            ['name' => 'หญิง', 'data' => ArrayHelper::getColumn($arr, 'female'), 'color' => '#F660AB'],
         ]
     ]
 ]);
 $directoryAsset = Yii::$app->assetManager->getPublishedUrl('@bower/highcharts');
-$this->registerJsFile($directoryAsset.'/modules/data.js', ['depends' => ['\miloschuman\highcharts\HighchartsAsset']]);
 $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\miloschuman\highcharts\HighchartsAsset']]);
 
 ?>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ประเภท</th>
+            <th>ชาย</th>
+            <th>หญิง</th>
+            <th>รวม</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php
+        $totalMale = 0;
+        $totalFemale = 0;
+        $totalSum = 0;
+        ?>
+        <?php foreach ($arr as $v) : ?>
+        <tr>
+            <th><?=$v['title']?></th>
+            <td><?=$v['male']?> <?php $totalMale += $v['male']; ?></td>
+            <td><?=$v['female']?> <?php $totalFemale += $v['female']; ?></td>
+            <td class="text-warning"><?=$v['sum']?> <?php $totalSum += $v['sum']; ?></td>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+    <tfooter>
+        <tr style="font-size: 1.2em;" class="text-danger">
+            <th class="text-right">รวม</th>
+            <td><?=$totalMale?></td>
+            <td><?=$totalFemale?></td>
+            <td><?=$totalSum?></td>
+        </tr>
+    </tfooter>
+</table>
