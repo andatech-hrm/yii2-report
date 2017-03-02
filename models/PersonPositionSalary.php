@@ -7,6 +7,11 @@ class PersonPositionSalary extends \andahrm\positionSalary\models\PersonPosition
 {
     public $year;
     
+    public $genderMaleCount;
+    public $genderFemaleCount;
+    
+    public $levelPersonCount;
+    
     public function rules()
     {
         $rules = parent::rules();

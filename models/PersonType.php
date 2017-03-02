@@ -38,7 +38,7 @@ class PersonType extends \andahrm\structure\models\PersonType
      public function attributeLabels()
     {
         $attr = parent::attributeLabels();
-        $attr['year'] = Yii::t('andahrm/structure', 'ปีงบประมาณ');
+        $attr['year'] = Yii::t('andahrm/structure', 'Year');
         return $attr;
     }
   

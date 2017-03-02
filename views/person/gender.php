@@ -9,9 +9,9 @@ foreach ($models['person-type'] as $key => $personType) :
     $gender = $models['person-position-salary'][$key];
     $arr[] = [
         'title' => $personType->title,
-        'male' => $gender['MaleCount']?intval($gender['MaleCount']):0,
-        'female' => $gender['FemaleCount']?intval($gender['FemaleCount']):0,
-        'sum' => $gender['MaleCount'] + $gender['FemaleCount']
+        'male' => $gender->genderMaleCount?intval($gender->genderMaleCount):0,
+        'female' => $gender->genderFemaleCount?intval($gender->genderFemaleCount):0,
+        'sum' => $gender->genderMaleCount + $gender->genderFemaleCount,
     ];
 endforeach;
 ?>

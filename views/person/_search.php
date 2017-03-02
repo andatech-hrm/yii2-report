@@ -35,7 +35,7 @@ use andahrm\structure\models\FiscalYear;
       
       <!--<div class="col-sm-3">-->
       <!--  <div class="form-group">-->
-      <!--    <?= Html::submitButton(Yii::t('andahrm/leave', 'Search'), ['class' => 'btn btn-primary']) ?>-->
+      <!--    <?= Html::submitButton(Yii::t('andahrm', 'Search'), ['class' => 'btn btn-primary']) ?>-->
       <!--  </div>-->
       <!--</div>-->
     

@@ -103,8 +103,8 @@ class PersonController extends Controller
             $query = PersonPositionSalary::find()
             ->select("
             person.firstname_th, 
-            SUM(CASE WHEN person.gender = 'm' THEN 1 ELSE 0 END) as MaleCount,
-            SUM(CASE WHEN person.gender = 'f' THEN 1 ELSE 0 END) as FemaleCount,
+            SUM(CASE WHEN person.gender = 'm' THEN 1 ELSE 0 END) as genderMaleCount,
+            SUM(CASE WHEN person.gender = 'f' THEN 1 ELSE 0 END) as genderFemaleCount,
             ")
             ->joinWith('position')
             ->joinWith('user')
@@ -115,12 +115,38 @@ class PersonController extends Controller
                 $end = $y.'-03-31';
                 $query = $query->andwhere(['between', 'DATE(person_position_salary.adjust_date)', $begin, $end]);
             }
-            $models['person-position-salary'][$key] = $query->asArray()
+            $models['person-position-salary'][$key] = $query
             ->one();
         endforeach;
         
         //Yii::$app->end();
 
         return $this->render('gender', ['models' => $models]);
+    }
+    
+    public function actionLevel()
+    {
+        $models['person-level'] = \andahrm\structure\models\PositionLevel::find()->all();
+        foreach($models['person-level'] as $key => $level) {
+            $query = PersonPositionSalary::find()
+            ->select(['levelPersonCount' => 'COUNT(*)'])
+            ->joinWith('position')
+            ->joinWith('user')
+            ->where(['position.position_level_id' => $level->id]);
+            
+            // $models['person-position-salary'][$level->id] = $query->asArray()
+            // ->one();
+            $models['person-position-salary'][$level->id] = $query->one();
+        }
+        
+        // return $this->renderContent('ssss');
+        // echo '<pre>';
+        // echo $models['person-position-salary'][2]->PersonCount;
+        // print_r($models['person-position-salary']);
+        // exit();
+        
+        //Yii::$app->end();
+
+        return $this->render('level', ['models' => $models]);
     }
 }
