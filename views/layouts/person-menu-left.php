@@ -41,6 +41,12 @@ use mdm\admin\components\Helper;
                             'label' =>  Yii::t('andahrm/report', 'Level'),
                             'url' => ["/{$module}/person/level"],
                             'icon'=>'fa fa-sitemap'
+                     ];     
+                     
+                   $menuItems[] =  [
+                            'label' =>  Yii::t('andahrm/report', 'Leave'),
+                            'url' => ["/{$module}/person/leave"],
+                            'icon'=>'fa fa-sitemap'
                      ];      
                   
       
