@@ -150,10 +150,11 @@ class PersonController extends Controller
                 $dateBetween = \andahrm\structure\models\FiscalYear::getDateBetween($y);
                 // $query = $query->andWhere(['between', 'DATE(person_contract.start_date)', $dateBetween->date_start, $dateBetween->date_end]);
                 
-                $query = $query->andWhere(['<=', 'DATE(person_contract.start_date)', $dateBetween->date_end])
+                $query->andWhere(['<=', 'DATE(person_contract.start_date)', $dateBetween->date_end])
                 ->andWhere(['>=', 'DATE(person_contract.end_date)', $dateBetween->date_start]);
                 
             }
+            // $query->groupBy('person_contract.user_id');
             $models['person-position-salary'][$key] = $query
             ->one();
         endforeach;
