@@ -98,14 +98,11 @@ class PersonController extends Controller
     
     public function actionGender(){
         $models['person-type'] = PersonType::find()->all();
-        $models['year-list'] = PersonPositionSalary::find()
-        ->select('YEAR(`adjust_date`) as year')
-        ->groupBy('YEAR(`adjust_date`)')->asArray()->all();
         $models['year-search'] = new YearSearch();
         $models['year-search']->load(Yii::$app->request->get());
         
         foreach ($models['person-type'] as $key => $personType) :
-            $query = PersonPositionSalary::find()
+            $query = Contract::find()
             ->select("
             person.firstname_th, 
             SUM(CASE WHEN person.gender = 'm' THEN 1 ELSE 0 END) as genderMaleCount,
@@ -118,7 +115,10 @@ class PersonController extends Controller
             if($models['year-search']->year !== null && !empty($models['year-search']->year)){
                 $y = intval($models['year-search']->year);
                 $dateBetween = \andahrm\structure\models\FiscalYear::getDateBetween($y);
-                $query = $query->andwhere(['between', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_start, $dateBetween->date_end]);
+                
+                $query->andWhere(['<=', 'DATE(person_contract.start_date)', $dateBetween->date_end])
+                ->andWhere(['>=', 'DATE(person_contract.end_date)', $dateBetween->date_start]);
+                
             }
             $models['person-position-salary'][$key] = $query
             ->one();
@@ -148,13 +148,11 @@ class PersonController extends Controller
             if($models['year-search']->year !== null && !empty($models['year-search']->year)){
                 $y = intval($models['year-search']->year);
                 $dateBetween = \andahrm\structure\models\FiscalYear::getDateBetween($y);
-                // $query = $query->andWhere(['between', 'DATE(person_contract.start_date)', $dateBetween->date_start, $dateBetween->date_end]);
                 
                 $query->andWhere(['<=', 'DATE(person_contract.start_date)', $dateBetween->date_end])
                 ->andWhere(['>=', 'DATE(person_contract.end_date)', $dateBetween->date_start]);
                 
             }
-            // $query->groupBy('person_contract.user_id');
             $models['person-position-salary'][$key] = $query
             ->one();
         endforeach;
