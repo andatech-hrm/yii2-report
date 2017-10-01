@@ -12,17 +12,20 @@ $this->params['breadcrumbs'][] = $this->title;
 $data = [];
 $selected = false;
 foreach ($model as $type) {
-    $arr = ['name' => $type->title, 'y' => count($type->positions)];
+    //$arr = ['name' => $type->title, 'y' => count($type->positions)];
+    $arr = ['name' => $type->title, 'y' => $type->count*1];
     $data[] = $arr;
 }
 
-usort($data,function($a,$b){
-    $c = $b['y'] - $a['y'];
-    // $c .= $b['availability'] - $a['availability'];
-    // $c .= strcmp($a['nick_name'],$b['nick_name']);
-    return $c;
-});
-
+// usort($data,function($a,$b){
+//     $c = $b['y'] - $a['y'];
+//     // $c .= $b['availability'] - $a['availability'];
+//     // $c .= strcmp($a['nick_name'],$b['nick_name']);
+//     return $c;
+// });
+// echo "<pre>";
+// print_r($data);
+// exit();
 
 
 echo Highcharts::widget([
@@ -93,7 +96,7 @@ $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\
                 
                 'label'=>Yii::t('andatech/report','Position count'),
                  'value'=>function($model){
-                     return count($model->positions);
+                     return $model->count;
                  },
             ],
         ],

@@ -18,4 +18,6 @@ class PersonPositionSalary extends \andahrm\positionSalary\models\PersonPosition
         $rules[] = [['year'], 'integer'];
         return $rules;
     }
+    
+    public $count;
 }

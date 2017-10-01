@@ -8,6 +8,7 @@ use yii\data\ActiveDataProvider;
 use andahrm\person\models\Person;
 use andahrm\person\models\PersonSearch;
 use andahrm\positionSalary\models\PersonPosition;
+//use andahrm\positionSalary\models\PersonPositionSalary;
 use andahrm\report\models\PersonPositionSalary;
 use andahrm\report\models\PersonType;
 use andahrm\report\models\PersonLeave;
@@ -49,9 +50,37 @@ class PersonController extends Controller
     
     public function actionType()
     {
+        
+         $person = PersonPositionSalary::find()->joinWith('position')
+            ->groupBy(['position.person_type_id'])
+             ->select(['count(user_id) as count'])
+            ->where('position.person_type_id = person_type.id');
+        
         $query = PersonType::find();
+        $query->select(['person_type.*','count'=>$person]);
+        //$query->leftJoin('position', 'position.person_type_id = person_type.id')
+          //      ->leftJoin('person_position_salary', 'person_position_salary.position_id = position.id');
+        
         $query->andWhere(['!=', 'parent_id', '0']);
-        $model = $query->all();
+                
+        //$query->groupBy(['position.person_type_id']);
+                
+        $models = $query->all();
+        /*
+        $person = PersonPositionSalary::find()->joinWith('position')->groupBy(['position.person_type_id'])->select(['position.person_type_id','count(user_id) as count'])->all();
+        
+        
+        $arr = ArrayHelper::index($person,'person_type_id');
+        
+        foreach( $models as $model ){
+            $model->count = isset($arr[$model->id])&&$arr[$model->id]?$arr[$model->id]->count:0;
+        }
+        */
+        
+        // echo "<pre>";
+        // print_r($models);
+        // print_r($arr);
+        // exit();
         
         $dataProvider = new ActiveDataProvider([
         'query' => $query,
@@ -65,7 +94,7 @@ class PersonController extends Controller
     ]);
         
         
-        return $this->render('type', ['model' => $model,'dataProvider'=>$dataProvider]);
+        return $this->render('type', ['model' => $models,'dataProvider'=>$dataProvider]);
     }
     
     public function actionGender_mad()
