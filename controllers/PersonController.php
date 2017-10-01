@@ -8,6 +8,7 @@ use yii\data\ActiveDataProvider;
 use andahrm\person\models\Person;
 use andahrm\report\models\PersonSearch;
 use andahrm\positionSalary\models\PersonPosition;
+use andahrm\structure\models\Position;
 //use andahrm\positionSalary\models\PersonPositionSalary;
 use andahrm\report\models\PersonPositionSalary;
 use andahrm\report\models\PersonType;
@@ -53,15 +54,32 @@ class PersonController extends Controller
         
         $user = PersonPositionSalary::find()
             ->select(['user_id'])
+            //->where('position_id = position.id')
             ->groupBy(['user_id']);
         
         
-         $person = PersonPositionSalary::find()
-            ->select(['count(*) as count'])
-            ->joinWith('position')
+        // $person = PersonPositionSalary::find()
+        //     ->select(['count(*) as count'])
+        //     ->joinWith('position')
+        //     ->where('position.person_type_id = person_type.id')
+        //     //->andWhere(['user_id'=>$user])
+        //     ->groupBy(['user_id'])
+        //     ->groupBy(['position.person_type_id']);
+        
+        $position = Position::find()
+            ->select(['count(*)'])
+            ->joinWith('personPositionSalaries')
             ->where('position.person_type_id = person_type.id')
-            ->andWhere(['user_id'=>$user])
-            ->groupBy(['position.person_type_id']);
+            ->andWhere(['user_id'=>$user]);
+            //->groupBy(['person_type_id']);
+            
+        $person = Person::find()
+            ->select('count(distinct(person.user_id))')
+            //->distinct('person.user_id')
+            ->joinWith('positionSalary.position')
+            ->where('position.person_type_id = person_type.id');
+            
+            
         
         $query = PersonType::find();
         $query->select(['person_type.*','count'=>$person]);
