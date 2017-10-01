@@ -6,7 +6,7 @@ use Yii;
 use yii\web\Controller;
 use yii\data\ActiveDataProvider;
 use andahrm\person\models\Person;
-use andahrm\person\models\PersonSearch;
+use andahrm\report\models\PersonSearch;
 use andahrm\positionSalary\models\PersonPosition;
 //use andahrm\positionSalary\models\PersonPositionSalary;
 use andahrm\report\models\PersonPositionSalary;
@@ -51,10 +51,17 @@ class PersonController extends Controller
     public function actionType()
     {
         
-         $person = PersonPositionSalary::find()->joinWith('position')
-            ->groupBy(['position.person_type_id'])
-             ->select(['count(user_id) as count'])
-            ->where('position.person_type_id = person_type.id');
+        $user = PersonPositionSalary::find()
+            ->select(['user_id'])
+            ->groupBy(['user_id']);
+        
+        
+         $person = PersonPositionSalary::find()
+            ->select(['count(*) as count'])
+            ->joinWith('position')
+            ->where('position.person_type_id = person_type.id')
+            ->andWhere(['user_id'=>$user])
+            ->groupBy(['position.person_type_id']);
         
         $query = PersonType::find();
         $query->select(['person_type.*','count'=>$person]);

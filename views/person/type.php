@@ -2,6 +2,7 @@
 use miloschuman\highcharts\Highcharts;
 use yii\web\JsExpression;
 use kartik\grid\GridView;
+use yii\helpers\Html;
 
 $this->title =  Yii::t('andahrm/report', 'Person Type');
 $this->params['breadcrumbs'][] = ['label' =>  Yii::t('andahrm/report', 'Report'), 'url' => ['/report/default']];
@@ -95,8 +96,13 @@ $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\
             [
                 
                 'label'=>Yii::t('andatech/report','Position count'),
+                'format'=>'html',
                  'value'=>function($model){
-                     return $model->count;
+                     $count = $model->count?$model->count:0;
+                     $where['person_type_id'] = $model->id;
+                     $where['person_type_id2'] = $model->id;
+                     
+                     return Html::a($count,['/report/person','PersonSearch'=>$where]);
                  },
             ],
         ],
