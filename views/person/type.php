@@ -96,26 +96,15 @@ $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\
   
    <?= GridView::widget([
         'dataProvider' => $dataProvider,
-        //'filterModel' => $searchModel,
+        'showPageSummary' => true,
         'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
+            ['class' => 'kartik\grid\SerialColumn'],
 
-            // //'id',
-            // 'code',
-            // 'date_code:date',
-            // //'testDate',
-            // [
-            //     'attribute'=>'section_id',
-            //     'value'=>'section.title',
-            //     'group'=>true,  // enable grouping,
-            //     'groupedRow'=>true,                    // move grouped column to a single grouped row
-            //     'groupOddCssClass'=>'kv-grouped-row',  // configure odd group cell css class
-            //     'groupEvenCssClass'=>'kv-grouped-row', // configure even group cell css class
-            // ],
             [
                 'attribute'=>'parent_id',
                 'value'=>'parent.title',
                 'group'=>true,
+                'pageSummary' => Yii::t('andahrm', 'Total'),
             ],
             [
                 //'label'=>Yii::t('andatech/report','Government service'),
@@ -126,7 +115,7 @@ $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\
                 
                 'label'=>Yii::t('andatech/report','Person Amount'),
                 'format'=>'html',
-                 'value'=>function($model){
+                 'content'=>function($model){
                      
                      $count = $model->count?$model->count:0;
                      $where['person_type_id'] = $model->id;
@@ -137,6 +126,10 @@ $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\
                      
                      return Html::a($count,['/report/person','PersonSearch'=>$where]);
                  },
+                 'value'=>function($model){
+                      return $model->count?$model->count:0;
+                 },
+                 'pageSummary'=>true,
             ],
         ],
     ]); ?>

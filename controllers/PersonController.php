@@ -149,6 +149,94 @@ class PersonController extends Controller
         return $this->render('type', ['model' => $modelPersonType ,'dataProvider'=>$dataProvider,'models'=>$models]);
     }
     
+    
+    
+    public function actionGender(){
+        //$models['person-type'] = PersonType::find()->all();
+        $models['year-search'] = new YearSearch();
+        if(!$models['year-search']->load(Yii::$app->request->get())){
+            $models['year-search']->year = date('Y');
+        }
+        
+        $genderMaleCount = Person::find()
+            ->select('count(distinct(person.user_id))')
+            ->joinWith('positionSalary.position')
+            ->where('position.person_type_id = person_type.id')
+            ->andWhere(['gender'=>'m']);
+            
+        $genderFemaleCount = Person::find()
+            ->select('count(distinct(person.user_id))')
+            ->joinWith('positionSalary.position')
+            ->where('position.person_type_id = person_type.id')
+            ->andWhere(['gender'=>'f']);
+        
+        if($models['year-search']->year !== null && !empty($models['year-search']->year)){
+            $y = intval($models['year-search']->year);
+            $dateBetween = FiscalYear::getDateBetween($y);
+            
+            $genderMaleCount->andWhere(['<=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_end])
+            ->andWhere(['>=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_start]);
+            
+            $genderFemaleCount->andWhere(['<=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_end])
+            ->andWhere(['>=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_start]);
+        }    
+        
+        
+        $query = PersonType::find();
+        $query->select([
+            'person_type.*',
+            'genderMaleCount'=>$genderMaleCount,
+            'genderFemaleCount'=>$genderFemaleCount
+        ]);
+        $query->andWhere(['!=', 'parent_id', '0']);
+        $modelPersonType = $query->all();
+        
+        
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => false,
+            'sort' => [
+                'defaultOrder' => [
+                    'parent_id' => SORT_ASC,
+                    'sort'=>SORT_ASC,
+                ]
+            ],
+        ]);
+
+        return $this->render('gender', ['model' => $modelPersonType,'models' => $models,'dataProvider'=>$dataProvider,]);
+    }
+    
+    public function actionGender1(){
+        $models['person-type'] = PersonType::find()->all();
+        $models['year-search'] = new YearSearch();
+        $models['year-search']->load(Yii::$app->request->get());
+        
+        foreach ($models['person-type'] as $key => $personType) :
+            $query = Contract::find()
+            ->select("
+            person.firstname_th, 
+            SUM(CASE WHEN person.gender = 'm' THEN 1 ELSE 0 END) as genderMaleCount,
+            SUM(CASE WHEN person.gender = 'f' THEN 1 ELSE 0 END) as genderFemaleCount,
+            ")
+            ->joinWith('position')
+            ->joinWith('user')
+            ->where(['position.person_type_id' => $personType->id]);
+            
+            if($models['year-search']->year !== null && !empty($models['year-search']->year)){
+                $y = intval($models['year-search']->year);
+                $dateBetween = \andahrm\structure\models\FiscalYear::getDateBetween($y);
+                
+                $query->andWhere(['<=', 'DATE(person_contract.start_date)', $dateBetween->date_end])
+                ->andWhere(['>=', 'DATE(person_contract.end_date)', $dateBetween->date_start]);
+                
+            }
+            $models['person-position-salary'][$key] = $query
+            ->one();
+        endforeach;
+
+        return $this->render('gender', ['models' => $models]);
+    }
+    
     public function actionGender_mad()
     {
         
@@ -198,37 +286,6 @@ class PersonController extends Controller
             'models' => $modelType,
             'modelGender'=>$newGender
         ]);
-    }
-    
-    public function actionGender(){
-        $models['person-type'] = PersonType::find()->all();
-        $models['year-search'] = new YearSearch();
-        $models['year-search']->load(Yii::$app->request->get());
-        
-        foreach ($models['person-type'] as $key => $personType) :
-            $query = Contract::find()
-            ->select("
-            person.firstname_th, 
-            SUM(CASE WHEN person.gender = 'm' THEN 1 ELSE 0 END) as genderMaleCount,
-            SUM(CASE WHEN person.gender = 'f' THEN 1 ELSE 0 END) as genderFemaleCount,
-            ")
-            ->joinWith('position')
-            ->joinWith('user')
-            ->where(['position.person_type_id' => $personType->id]);
-            
-            if($models['year-search']->year !== null && !empty($models['year-search']->year)){
-                $y = intval($models['year-search']->year);
-                $dateBetween = \andahrm\structure\models\FiscalYear::getDateBetween($y);
-                
-                $query->andWhere(['<=', 'DATE(person_contract.start_date)', $dateBetween->date_end])
-                ->andWhere(['>=', 'DATE(person_contract.end_date)', $dateBetween->date_start]);
-                
-            }
-            $models['person-position-salary'][$key] = $query
-            ->one();
-        endforeach;
-
-        return $this->render('gender', ['models' => $models]);
     }
     
     /////////////////

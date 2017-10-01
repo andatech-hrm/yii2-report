@@ -4,15 +4,17 @@ use miloschuman\highcharts\Highcharts;
 use yii\web\JsExpression;
 use yii\bootstrap\ActiveForm;
 use andahrm\structure\models\FiscalYear;
+use kartik\grid\GridView;
+use yii\helpers\Html;
 ?>
 <?php
-foreach ($models['person-type'] as $key => $personType) :
-    $gender = $models['person-position-salary'][$key];
+foreach ($model as $key => $personType) :
+    //$gender = $models['person-position-salary'][$key];
     $arr[] = [
         'title' => $personType->title,
-        'male' => $gender->genderMaleCount?intval($gender->genderMaleCount):0,
-        'female' => $gender->genderFemaleCount?intval($gender->genderFemaleCount):0,
-        'sum' => $gender->genderMaleCount + $gender->genderFemaleCount,
+        'male' => $personType->genderMaleCount?intval($personType->genderMaleCount):0,
+        'female' => $personType->genderFemaleCount?intval($personType->genderFemaleCount):0,
+        'sum' => $personType->genderMaleCount + $personType->genderFemaleCount,
     ];
 endforeach;
 ?>
@@ -49,7 +51,7 @@ echo Highcharts::widget([
         'chart' => [
             'type' => 'column',
         ],
-        'title' => ['text' => 'ประเภทบุคลากร '.$models['year-search']->year],
+        'title' => ['text' => 'ประเภทบุคลากร '.($models['year-search']->year+543)],
         'credits' => [
             'enabled' => false
         ],
@@ -78,8 +80,8 @@ echo Highcharts::widget([
             ]
         ],
         'series' => [
-            ['name' => 'ชาย', 'data' => ArrayHelper::getColumn($arr, 'male'), 'color' => '#368BC1'],
-            ['name' => 'หญิง', 'data' => ArrayHelper::getColumn($arr, 'female'), 'color' => '#F660AB'],
+            ['name' => Yii::t('andahrm/report', 'Male'), 'data' => ArrayHelper::getColumn($arr, 'male'), 'color' => '#368BC1'],
+            ['name' => Yii::t('andahrm/report', 'Female'), 'data' => ArrayHelper::getColumn($arr, 'female'), 'color' => '#F660AB'],
         ]
     ]
 ]);
@@ -88,36 +90,70 @@ $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\
 
 ?>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>ประเภท</th>
-            <th>ชาย</th>
-            <th>หญิง</th>
-            <th>รวม</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php
-        $totalMale = 0;
-        $totalFemale = 0;
-        $totalSum = 0;
-        ?>
-        <?php foreach ($arr as $v) : ?>
-        <tr>
-            <th><?=$v['title']?></th>
-            <td><?=$v['male']?> <?php $totalMale += $v['male']; ?></td>
-            <td><?=$v['female']?> <?php $totalFemale += $v['female']; ?></td>
-            <td class="text-warning"><?=$v['sum']?> <?php $totalSum += $v['sum']; ?></td>
-        </tr>
-        <?php endforeach; ?>
-    </tbody>
-    <tfooter>
-        <tr style="font-size: 1.2em;" class="text-danger">
-            <th class="text-right">รวม</th>
-            <td><?=$totalMale?></td>
-            <td><?=$totalFemale?></td>
-            <td><?=$totalSum?></td>
-        </tr>
-    </tfooter>
-</table>
+   <?= GridView::widget([
+        'dataProvider' => $dataProvider,
+        //'filterModel' => $searchModel,
+        'showPageSummary' => true,
+        'columns' => [
+            ['class' => 'kartik\grid\SerialColumn'],
+            [
+                'attribute'=>'parent_id',
+                'value'=>'parent.title',
+                'group'=>true,
+                'pageSummary' => Yii::t('andahrm', 'Total'),
+            ],
+            [
+                //'label'=>Yii::t('andatech/report','Government service'),
+                'attribute'=>'title',
+                //'value'=>'titleLevel',
+            ],
+            [
+                'attribute'=>'genderMaleCount',
+                'format'=>'html',
+                'content'=>function($model){
+                     $count = $model->genderMaleCount?$model->genderMaleCount:0;
+                     $where['person_type_id'] = $model->id;
+                     $where['gender'] = 'm';
+                     if($get = Yii::$app->request->queryParams){
+                        $where['year'] = $get['YearSearch']['year'];
+                     }
+                     //$where['person_type_id2'] = $model->id;
+                     
+                     return Html::a($count,['/report/person','PersonSearch'=>$where]);
+                 },
+                 'value'=>function($model){
+                      return $model->genderMaleCount?$model->genderMaleCount:0;
+                 },
+                 'pageSummary'=>true,
+            ],
+            [
+                'attribute'=>'genderFemaleCount',
+                'format'=>'html',
+                'content' => function($model){
+                    $count = $model->genderFemaleCount?$model->genderFemaleCount:0;
+                     $where['person_type_id'] = $model->id;
+                     $where['gender'] = 'f';
+                     if($get = Yii::$app->request->queryParams){
+                        $where['year'] = $get['YearSearch']['year'];
+                     }
+                     //$where['person_type_id2'] = $model->id;
+                     
+                     return Html::a($count,['/report/person','PersonSearch'=>$where]);
+                   
+                },
+                'value'=>function($model){
+                      return $model->genderFemaleCount?$model->genderFemaleCount:0;
+                 },
+                 'pageSummary'=>true,
+            ],
+            [
+                'attribute'=>'sum',
+                'value'=>function($model){
+                     $count = $model->genderMaleCount?$model->genderMaleCount:0;
+                     $count1 = $model->genderFemaleCount?$model->genderFemaleCount:0;
+                     return $count+$count1;
+                 },
+                'pageSummary'=>true,
+            ]
+        ],
+    ]); ?>

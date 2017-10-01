@@ -28,6 +28,10 @@ class PersonType extends \andahrm\structure\models\PersonType
     
   public $gender;
   public $year;
+  public $count = 0;
+  public $sum = 0;
+  public $genderMaleCount;
+  public $genderFemaleCount;
   
   public function scenarios(){
       $scenarios = parent::scenarios();
@@ -39,6 +43,9 @@ class PersonType extends \andahrm\structure\models\PersonType
     {
         $attr = parent::attributeLabels();
         $attr['year'] = Yii::t('andahrm/structure', 'Year');
+        $attr['genderMaleCount'] = Yii::t('andahrm/report', 'Male');
+        $attr['genderFemaleCount'] = Yii::t('andahrm/report', 'Female');
+        $attr['sum'] = Yii::t('andahrm/report', 'Sum');
         return $attr;
     }
   
