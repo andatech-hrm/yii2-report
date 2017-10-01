@@ -9,6 +9,8 @@ class YearSearch extends \yii\base\Model
 {
     
   public $year;
+  public $start;
+  public $end;
 
     /**
      * @inheritdoc
@@ -16,7 +18,7 @@ class YearSearch extends \yii\base\Model
     public function rules()
     {
         return [
-            [['year'], 'integer']
+            [['year','start','end'], 'integer']
         ];
     }
 }
