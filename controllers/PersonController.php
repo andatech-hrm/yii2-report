@@ -35,6 +35,7 @@ class PersonController extends Controller
     {
         $searchModel = new PersonSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $dataProvider->pagination = false;
         //$dataProvider->pagination->pageSize = Yii::$app->params['app-settings']['reading']['pagesize'];
 
         return $this->render('index', [
