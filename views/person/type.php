@@ -84,7 +84,7 @@ $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\
             //     'groupEvenCssClass'=>'kv-grouped-row', // configure even group cell css class
             // ],
             [
-                'attribute'=>'parent',
+                'attribute'=>'parent_id',
                 'value'=>'parent.title',
                 'group'=>true,
             ],
@@ -95,7 +95,7 @@ $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\
             ],
             [
                 
-                'label'=>Yii::t('andatech/report','Position count'),
+                'label'=>Yii::t('andatech/report','Person Amount'),
                 'format'=>'html',
                  'value'=>function($model){
                      $count = $model->count?$model->count:0;
