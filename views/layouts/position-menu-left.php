@@ -17,37 +17,12 @@ use mdm\admin\components\Helper;
                     $menuItems = [];
       
                     $menuItems[] =  [
-                           'label' => Yii::t('andahrm/report', 'Person'),
-                            'url' => ["/{$module}/person/index"],
+                           'label' => Yii::t('andahrm/report', 'Position'),
+                            'url' => ["/{$module}/position/index"],
                             'icon'=>'fa fa-sitemap'
                      ];    
                     
       
-                    $menuItems[] =  [
-                           'label' =>  Yii::t('andahrm/report', 'Person Type'),
-                            'url' => ["/{$module}/person/type"],
-                            'icon'=>'fa fa-sitemap'
-                     ];
-      
-      
-                    $menuItems[] =  [
-                            'label' =>  Yii::t('andahrm/report', 'Gender'),
-                            'url' => ["/{$module}/person/gender"],
-                            'icon'=>'fa fa-sitemap'
-                     ]; 
-      
-      
-                    $menuItems[] =  [
-                            'label' =>  Yii::t('andahrm/report', 'Level'),
-                            'url' => ["/{$module}/person/level"],
-                            'icon'=>'fa fa-sitemap'
-                     ];     
-                     
-                   $menuItems[] =  [
-                            'label' =>  Yii::t('andahrm/report', 'Leave'),
-                            'url' => ["/{$module}/person/leave"],
-                            'icon'=>'fa fa-sitemap'
-                     ];      
                   
       
                     $menuItems = Helper::filter($menuItems);

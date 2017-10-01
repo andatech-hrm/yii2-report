@@ -1,6 +1,7 @@
 <?php
 use miloschuman\highcharts\Highcharts;
 use yii\web\JsExpression;
+use kartik\grid\GridView;
 
 $this->title =  Yii::t('andahrm/report', 'Person Type');
 $this->params['breadcrumbs'][] = ['label' =>  Yii::t('andahrm/report', 'Report'), 'url' => ['/report/default']];
@@ -34,7 +35,7 @@ echo Highcharts::widget([
         ],
         'title' => ['text' => 'อัตตราส่วนตำแหน่งแบ่งตามประเภท'],
         'tooltip' => [
-            'pointFormat' => '{series.name}: <b>{point.y:.1f}</b>'
+            'pointFormat' => '{series.name}: <b>{point.y}</b>'
         ],
         'plotOptions' => [
             'pie' => [
@@ -58,6 +59,42 @@ echo Highcharts::widget([
 ]);
 $directoryAsset = Yii::$app->assetManager->getPublishedUrl('@bower/highcharts');
 $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\miloschuman\highcharts\HighchartsAsset']]);
-
-
 ?>
+  
+   <?= GridView::widget([
+        'dataProvider' => $dataProvider,
+        //'filterModel' => $searchModel,
+        'columns' => [
+            ['class' => 'yii\grid\SerialColumn'],
+
+            // //'id',
+            // 'code',
+            // 'date_code:date',
+            // //'testDate',
+            // [
+            //     'attribute'=>'section_id',
+            //     'value'=>'section.title',
+            //     'group'=>true,  // enable grouping,
+            //     'groupedRow'=>true,                    // move grouped column to a single grouped row
+            //     'groupOddCssClass'=>'kv-grouped-row',  // configure odd group cell css class
+            //     'groupEvenCssClass'=>'kv-grouped-row', // configure even group cell css class
+            // ],
+            [
+                'attribute'=>'parent',
+                'value'=>'parent.title',
+                'group'=>true,
+            ],
+            [
+                //'label'=>Yii::t('andatech/report','Government service'),
+                'attribute'=>'title',
+                //'value'=>'titleLevel',
+            ],
+            [
+                
+                'label'=>Yii::t('andatech/report','Position count'),
+                 'value'=>function($model){
+                     return count($model->positions);
+                 },
+            ],
+        ],
+    ]); ?>

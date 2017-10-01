@@ -6,6 +6,7 @@ use Yii;
 use yii\web\Controller;
 use yii\data\ActiveDataProvider;
 use andahrm\person\models\Person;
+use andahrm\person\models\PersonSearch;
 use andahrm\positionSalary\models\PersonPosition;
 use andahrm\report\models\PersonPositionSalary;
 use andahrm\report\models\PersonType;
@@ -28,9 +29,16 @@ class PersonController extends Controller
         $this->layout='person-menu-left';
     }
      
-    public function actionIndex()
+   public function actionIndex()
     {
-        return $this->render('index');
+        $searchModel = new PersonSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        //$dataProvider->pagination->pageSize = Yii::$app->params['app-settings']['reading']['pagesize'];
+
+        return $this->render('index', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+        ]);
     }
     
     public function actionPosition()
@@ -41,8 +49,23 @@ class PersonController extends Controller
     
     public function actionType()
     {
-        $model = PersonType::find()->all();
-        return $this->render('type', ['model' => $model]);
+        $query = PersonType::find();
+        $query->andWhere(['!=', 'parent_id', '0']);
+        $model = $query->all();
+        
+        $dataProvider = new ActiveDataProvider([
+        'query' => $query,
+        'pagination' => false,
+        'sort' => [
+            'defaultOrder' => [
+                'parent_id' => SORT_ASC,
+                'sort'=>SORT_ASC,
+            ]
+        ],
+    ]);
+        
+        
+        return $this->render('type', ['model' => $model,'dataProvider'=>$dataProvider]);
     }
     
     public function actionGender_mad()

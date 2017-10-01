@@ -11,7 +11,7 @@ class PositionController extends \yii\web\Controller
 {
      public function actions()
     {
-        $this->layout='person-menu-left';
+        $this->layout='position-menu-left';
     }
     
     public function actionIndex()

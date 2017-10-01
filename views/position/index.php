@@ -7,7 +7,7 @@ use yii\widgets\Pjax;
 /* @var $searchModel andahrm\edoc\models\EdocSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = Yii::t('andahrm/edoc', 'Edocs');
+$this->title = Yii::t('andahrm/report', 'Position Report');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="edoc-index">
@@ -15,9 +15,10 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
-    <p>
-        <?= Html::a(Yii::t('andahrm/edoc', 'Create Edoc'), ['create'], ['class' => 'btn btn-success']) ?>
-    </p>
+    <!--<p>-->
+    <!--    <?= Html::a(Yii::t('andahrm/edoc', 'Create Edoc'), ['create'], ['class' => 'btn btn-success']) ?>-->
+    <!--</p>-->
+    
 <?php //Pjax::begin(); ?>    
    <?= GridView::widget([
         'dataProvider' => $dataProvider,
