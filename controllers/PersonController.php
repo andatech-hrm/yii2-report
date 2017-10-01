@@ -8,6 +8,7 @@ use yii\data\ActiveDataProvider;
 use andahrm\person\models\Person;
 use andahrm\report\models\PersonSearch;
 use andahrm\positionSalary\models\PersonPosition;
+use andahrm\structure\models\FiscalYear;
 use andahrm\structure\models\Position;
 //use andahrm\positionSalary\models\PersonPositionSalary;
 use andahrm\report\models\PersonPositionSalary;
@@ -36,11 +37,25 @@ class PersonController extends Controller
         $searchModel = new PersonSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
         $dataProvider->pagination = false;
+        $header = [];
+        if($get=Yii::$app->request->get('PersonSearch')){
+            if(isset($get['person_type_id'])){
+                $personType = PersonType::findOne($get['person_type_id']);
+                $header[] = 'แบ่งตามประเภทบุคคล ' 
+                .$personType->title;
+            }
+            if(isset($get['year'])){
+                $header[] = 'ประจำปี '
+                            .($get['year']+543);
+            }
+        }
+        
         //$dataProvider->pagination->pageSize = Yii::$app->params['app-settings']['reading']['pagesize'];
 
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
+            'header'=>$header,
         ]);
     }
     
@@ -52,6 +67,9 @@ class PersonController extends Controller
     
     public function actionType()
     {
+        
+        $models['year-search'] = new YearSearch();
+        $models['year-search']->load(Yii::$app->request->get());
         
         $user = PersonPositionSalary::find()
             ->select(['user_id'])
@@ -79,6 +97,14 @@ class PersonController extends Controller
             //->distinct('person.user_id')
             ->joinWith('positionSalary.position')
             ->where('position.person_type_id = person_type.id');
+        if($models['year-search']->year !== null && !empty($models['year-search']->year)){
+                $y = intval($models['year-search']->year);
+                $dateBetween = FiscalYear::getDateBetween($y);
+                
+                $person->andWhere(['<=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_end])
+                ->andWhere(['>=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_start]);
+            }    
+            
             
             
         
@@ -91,7 +117,7 @@ class PersonController extends Controller
                 
         //$query->groupBy(['position.person_type_id']);
                 
-        $models = $query->all();
+        $modelPersonType = $query->all();
         /*
         $person = PersonPositionSalary::find()->joinWith('position')->groupBy(['position.person_type_id'])->select(['position.person_type_id','count(user_id) as count'])->all();
         
@@ -120,7 +146,7 @@ class PersonController extends Controller
     ]);
         
         
-        return $this->render('type', ['model' => $models,'dataProvider'=>$dataProvider]);
+        return $this->render('type', ['model' => $modelPersonType ,'dataProvider'=>$dataProvider,'models'=>$models]);
     }
     
     public function actionGender_mad()

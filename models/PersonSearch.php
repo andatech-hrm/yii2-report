@@ -14,13 +14,14 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
 {
     public $fullname;
     public $person_type_id;
+    public $year;
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['user_id', 'title_id', 'created_at', 'created_by', 'updated_at', 'updated_by','person_type_id'], 'integer'],
+            [['user_id', 'title_id', 'created_at', 'created_by', 'updated_at', 'updated_by','person_type_id','year'], 'integer'],
             [['citizen_id', 'firstname_th', 'lastname_th', 'firstname_en', 'lastname_en', 'gender', 'tel', 'phone', 'birthday', 'fullname', 'full_address_contact'], 'safe'],
         ];
     }
@@ -69,6 +70,13 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
         if($this->person_type_id){
              $query->joinWith(['positionSalary.position']);
              $query->andFilterWhere(['position.person_type_id'=>$this->person_type_id]);
+        }
+        
+        if($this->year){
+             $dateBetween = \andahrm\structure\models\FiscalYear::getDateBetween($this->year);
+             $query->joinWith(['positionSalary']);
+             $query->andFilterWhere(['<=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_end])
+                ->andFilterWhere(['>=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_start]);
         }
         
 

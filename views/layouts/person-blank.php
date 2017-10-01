@@ -5,7 +5,7 @@ use yii\bootstrap\Nav;
 use dmstr\widgets\Menu;
 use mdm\admin\components\Helper;
 
- $this->beginContent('@andahrm/report/views/layouts/main.php'); 
+ $this->beginContent('@andahrm/report/views/layouts/person-menu-left.php'); 
  $module = $this->context->module->id;
 ?>
 <div class="row hidden-print">
@@ -37,17 +37,17 @@ use mdm\admin\components\Helper;
                      ]; 
       
       
-                //     $menuItems[] =  [
-                //             'label' =>  Yii::t('andahrm/report', 'Level'),
-                //             'url' => ["/{$module}/person/level"],
-                //             'icon'=>'fa fa-sitemap'
-                //      ];     
+                    $menuItems[] =  [
+                            'label' =>  Yii::t('andahrm/report', 'Level'),
+                            'url' => ["/{$module}/person/level"],
+                            'icon'=>'fa fa-sitemap'
+                     ];     
                      
-                //   $menuItems[] =  [
-                //             'label' =>  Yii::t('andahrm/report', 'Leave'),
-                //             'url' => ["/{$module}/person/leave"],
-                //             'icon'=>'fa fa-sitemap'
-                //      ];      
+                   $menuItems[] =  [
+                            'label' =>  Yii::t('andahrm/report', 'Leave'),
+                            'url' => ["/{$module}/person/leave"],
+                            'icon'=>'fa fa-sitemap'
+                     ];      
                   
       
                     $menuItems = Helper::filter($menuItems);

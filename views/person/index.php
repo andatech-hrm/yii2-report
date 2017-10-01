@@ -56,6 +56,8 @@ $columns = [
     'updated_by' => 'updated_by',
 ];
 
+
+
 $gridColumns = [
     // $columns['user_id'],
     ['class' => '\kartik\grid\SerialColumn'],
@@ -81,8 +83,8 @@ $gridColumns = [
     //      'template' => '{view} {delete}',
     // ]
 ];
-
-$fullExportMenu = ExportMenu::widget([
+/*
+echo  ExportMenu::widget([
     'dataProvider' => $dataProvider,
     'columns' => $columns,
     'filename' => $this->title,
@@ -98,12 +100,17 @@ $fullExportMenu = ExportMenu::widget([
         ],
     ],
 ]);
+*/
 ?>
+<div class="text-center">
+<?=Html::tag('h1','รายงาน')?>
+<?=Html::tag('h3',implode('<br/>',$header))?>
+</div>
 <div class="person-index">
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
-        'filterModel' => $searchModel,
+        //'filterModel' => $searchModel,
         'id' => 'data-grid',
         'tableOptions' => ['class' => 'jambo_table'],
         'pjax'=>true,
@@ -125,32 +132,7 @@ $fullExportMenu = ExportMenu::widget([
 //             GridView::PDF=>['filename' => $exportFilename],
 //             GridView::JSON=>['filename' => $exportFilename],
 //         ],
-        'panel' => [
-            'heading'=>'<h3 class="panel-title"><i class="fa fa-th"></i> '.Html::encode($this->title).'</h3>',
-//             'heading' => false,
-//             'type'=>'primary',
-            // 'before'=> '<div class="btn-group">'.
-            //     Html::a('<i class="glyphicon glyphicon-plus"></i> '.Yii::t('andahrm', 'Create'), ['create'], [
-            //         'class' => 'btn btn-success btn-flat',
-            //         'data-pjax' => 0
-            //     ]) . ' '.
-            //     Html::a('<i class="glyphicon glyphicon-repeat"></i> '.Yii::t('andahrm', 'Reload'), '', [
-            //         'class' => 'btn btn-info btn-flat btn-reload',
-            //         'title' => 'Reload',
-            //         'id' => 'btn-reload-grid'
-            //     ]) . ' '.
-            //     Html::a('<i class="glyphicon glyphicon-trash"></i> '.Yii::t('andahrm', 'Trash'), ['trash/index'], [
-            //         'class' => 'btn btn-warning btn-flat',
-            //         'data-pjax' => 0
-            //     ]) . ' '.
-            //     '</div>',
-            'after' => false,
-        ],
-        'toolbar' => [
-            '{export}',
-            '{toggleData}',
-            $fullExportMenu,
-        ],
+        'panel' => false,
        'columns' => $gridColumns,
     ]); ?>
 </div>
