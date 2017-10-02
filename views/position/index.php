@@ -79,7 +79,7 @@ $columns[] = [
                 'groupEvenCssClass'=>'kv-grouped-row', // configure even group cell css class
             ];
 $columns[] = [
-                'label'=>Yii::t('andatech/report','Government service'),
+                'label'=>Yii::t('andahrm/report','Government service'),
                 'attribute'=>'title',
                 'value'=>'titleLevel',
             ];
