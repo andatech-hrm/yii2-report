@@ -107,13 +107,13 @@ $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\
                 'pageSummary' => Yii::t('andahrm', 'Total'),
             ],
             [
-                //'label'=>Yii::t('andatech/report','Government service'),
+                //'label'=>Yii::t('andahrm/report','Government service'),
                 'attribute'=>'title',
                 //'value'=>'titleLevel',
             ],
             [
                 
-                'label'=>Yii::t('andatech/report','Person Amount'),
+                'label'=>Yii::t('andahrm/report','Person Amount'),
                 'format'=>'html',
                  'content'=>function($model){
                      
