@@ -114,6 +114,7 @@ $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\
                      $count = $model->genderMaleCount?$model->genderMaleCount:0;
                      $where['person_type_id'] = $model->id;
                      $where['gender'] = 'm';
+                     $where['year'] = date('Y');
                      if($get = Yii::$app->request->queryParams){
                         $where['year'] = $get['YearSearch']['year'];
                      }
@@ -133,6 +134,7 @@ $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\
                     $count = $model->genderFemaleCount?$model->genderFemaleCount:0;
                      $where['person_type_id'] = $model->id;
                      $where['gender'] = 'f';
+                     $where['year'] = date('Y');
                      if($get = Yii::$app->request->queryParams){
                         $where['year'] = $get['YearSearch']['year'];
                      }
