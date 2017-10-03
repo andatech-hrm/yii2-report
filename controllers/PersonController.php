@@ -101,8 +101,8 @@ class PersonController extends Controller
                 $y = intval($models['year-search']->year);
                 $dateBetween = FiscalYear::getDateBetween($y);
                 
-                $person->andWhere(['<=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_end])
-                ->andWhere(['>=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_start]);
+                $person->andWhere(['>=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_start])
+                ->andWhere(['<=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_end]);
             }    
             
             
@@ -155,7 +155,7 @@ class PersonController extends Controller
         //$models['person-type'] = PersonType::find()->all();
         $models['year-search'] = new YearSearch();
         if(!$models['year-search']->load(Yii::$app->request->get())){
-            $models['year-search']->year = date('Y');
+            //$models['year-search']->year = date('Y');
         }
         
         $genderMaleCount = Person::find()
@@ -174,11 +174,11 @@ class PersonController extends Controller
             $y = intval($models['year-search']->year);
             $dateBetween = FiscalYear::getDateBetween($y);
             
-            $genderMaleCount->andWhere(['<=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_end])
-            ->andWhere(['>=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_start]);
+            $genderMaleCount->andWhere(['>=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_start])
+            ->andWhere(['<=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_end]);
             
-            $genderFemaleCount->andWhere(['<=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_end])
-            ->andWhere(['>=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_start]);
+            $genderFemaleCount->andWhere(['>=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_start])
+            ->andWhere(['<=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_end]);
         }    
         
         

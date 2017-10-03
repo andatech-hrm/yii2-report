@@ -20,6 +20,12 @@ use mdm\admin\components\Helper;
                            'label' => Yii::t('andahrm/report', 'Position'),
                             'url' => ["/{$module}/position/index"],
                             'icon'=>'fa fa-sitemap'
+                     ]; 
+                     
+                     $menuItems[] =  [
+                           'label' => Yii::t('andahrm/report', 'Capacity'),
+                            'url' => ["/{$module}/position/capacity"],
+                            'icon'=>'fa fa-sitemap'
                      ];    
                     
       

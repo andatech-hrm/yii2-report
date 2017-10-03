@@ -45,13 +45,13 @@ ActiveForm::end();
 
 <?php
 // print_r(ArrayHelper::getColumn($arr, 'title'));
-
+$label_year = $models['year-search']->year?$models['year-search']->year+543:'';
 echo Highcharts::widget([
     'options' => [
         'chart' => [
             'type' => 'column',
         ],
-        'title' => ['text' => 'ประเภทบุคลากร '.($models['year-search']->year+543)],
+        'title' => ['text' => 'ประเภทบุคลากร '.$label_year],
         'credits' => [
             'enabled' => false
         ],
@@ -114,7 +114,7 @@ $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\
                      $count = $model->genderMaleCount?$model->genderMaleCount:0;
                      $where['person_type_id'] = $model->id;
                      $where['gender'] = 'm';
-                     $where['year'] = date('Y');
+                     //$where['year'] = date('Y');
                      if($get = Yii::$app->request->queryParams){
                         $where['year'] = $get['YearSearch']['year'];
                      }
@@ -134,7 +134,7 @@ $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\
                     $count = $model->genderFemaleCount?$model->genderFemaleCount:0;
                      $where['person_type_id'] = $model->id;
                      $where['gender'] = 'f';
-                     $where['year'] = date('Y');
+                     //$where['year'] = date('Y');
                      if($get = Yii::$app->request->queryParams){
                         $where['year'] = $get['YearSearch']['year'];
                      }

@@ -10,6 +10,8 @@ use andahrm\report\models\Position;
 use andahrm\structure\models\FiscalYear;
 use andahrm\report\models\YearSearch;
 
+use andahrm\structure\models\PositionSearch;
+
 class PositionController extends \yii\web\Controller
 {
      public function actions()
@@ -17,7 +19,40 @@ class PositionController extends \yii\web\Controller
         $this->layout='position-menu-left';
     }
     
-    public function actionIndex()
+    public function actionIndex($code=null)
+    {
+        $test = new \console\controllers\TestController(fhir, Yii::$app); 
+         $test->runAction('index');
+        
+        $test = new \console\controllers\TestController(Yii::$app->controller->id, Yii::$app); 
+        $test->actionIndex();
+        exit();
+        
+        
+        if($code){
+            $models = Position::find()->all();
+            foreach($models as $model){
+                $model->code = $model->generatCode;
+                $model->save(false);
+            }
+        }
+        
+        $searchModel = new PositionSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $dataProvider->sort->defaultOrder = [
+            'person_type_id'=>SORT_ASC,
+            'section_id'=>SORT_ASC,
+            'position_line_id'=>SORT_ASC,
+            'number'=>SORT_ASC,
+        ];
+
+        return $this->render('index', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+        ]);
+    }
+    
+    public function actionCapacity()
     {
         
         
@@ -57,7 +92,7 @@ class PositionController extends \yii\web\Controller
             ],
         ]);
 
-        return $this->render('index', [
+        return $this->render('capacity', [
             //'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
             'models' => $models,

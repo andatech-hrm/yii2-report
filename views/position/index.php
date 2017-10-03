@@ -1,109 +1,136 @@
 <?php
 
 use yii\helpers\Html;
-use kartik\grid\GridView;
 use yii\widgets\Pjax;
-use yii\bootstrap\ActiveForm;
-use andahrm\structure\models\FiscalYear;
+use kartik\grid\GridView;
+use kartik\widgets\Select2;
+use kartik\export\ExportMenu;
+
+use andahrm\structure\models\PersonType;
+use andahrm\structure\models\Section;
+use andahrm\structure\models\PositionLine;
+use andahrm\structure\models\PositionType;
+use andahrm\structure\models\PositionLevel;
+use andahrm\structure\models\Position;
 /* @var $this yii\web\View */
-/* @var $searchModel andahrm\edoc\models\EdocSearch */
+/* @var $searchModel andahrm\structure\models\PositionSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = Yii::t('andahrm/report', 'Position Report');
+$this->title = Yii::t('andahrm/structure', 'Positions');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="edoc-index">
 
 <?php
-    $form = ActiveForm::begin([
-        'action' => [$this->context->action->id],
-        'method' => 'get',
-       // 'options' => ['data-pjax' => true ],
-        //'layout' => 'horizontal',
-        'fieldConfig' => [
-            //'template' => "{label}\n{beginWrapper}\n{input}\n{hint}\n{error}\n{endWrapper}",
-            // 'horizontalCssClasses' => [
-            //     'label' => 'col-sm-4',
-            //     'offset' => 'col-sm-offset-4',
-            //     'wrapper' => 'col-sm-8',
-            //     'error' => '',
-            //     'hint' => '',
-            // ],
+$columns = [
+    'id' => 'id',
+    'code' => 'code',
+    'code' => [
+        'attribute' => 'code',
+        // 'filter' => Select2::widget([
+        //     'name' => 'code',
+        //     'data' => Position::getList(),
+        //     ]),
+        'contentOptions' => ['style'=>"white-space:nowrap;"],
+        'value' => 'code'
+    ],
+    'title' => 'title',
+    'position_line_id' => [
+        'attribute' => 'position_line_id',
+        'filter' => PositionLine::getList(),
+        'value' => 'positionLine.title'
+    ],
+    'position_type_id' => [
+        'attribute' => 'position_type_id',
+        'filter' => PositionType::getList(),
+        'value' => 'positionType.title'
+    ],
+    'position_level_id' => [
+        'attribute' => 'position_level_id',
+        'filter' => PositionLevel::getList(),
+        'value' => 'positionLevel.title'
+    ],
+    'status' => [
+        'attribute' => 'status',
+        'filter' => Position::getItemStatus(),
+        'format' => 'html',
+        'value' => 'statusLabel'
+    ],
+    'note' => 'note',
+    'created_at' => 'created_at:datetime',
+    'created_by' => [
+        'attribute' => 'created_by',
+        'value' => 'createdBy.fullname'
+    ],
+    'updated_at' => 'updated_at:datetime',
+    'updated_by' => [
+        'attribute' => 'updated_by',
+        'value' => 'updatedBy.fullname'
+    ],
+];
+
+$gridColumns = [
+   ['class' => '\kartik\grid\SerialColumn'],
+    $columns['code'],
+    $columns['title'],
+    $columns['position_line_id'],
+    //$columns['position_type_id'],
+    //$columns['position_level_id'],
+    //$columns['status'],
+    //$columns['created_at'],
+    //$columns['created_by'],
+    //['class' => '\kartik\grid\ActionColumn',]
+];
+
+$fullExportMenu = ExportMenu::widget([
+    'dataProvider' => $dataProvider,
+    'columns' => $columns,
+    'filename' => $this->title,
+    'showConfirmAlert' => false,
+    'target' => ExportMenu::TARGET_BLANK,
+    'fontAwesome' => true,
+    'pjaxContainerId' => 'kv-pjax-container',
+    'dropdownOptions' => [
+        'label' => 'Full',
+        'class' => 'btn btn-default',
+        'itemsBefore' => [
+            '<li class="dropdown-header">Export All Data</li>',
         ],
-    ]);
-    ?>
-    <div class="row">
-    <div class="col-sm-6">
-        <?=$form->field($models['year-search'], 'start')->dropDownList(FiscalYear::getList(), [
-        'prompt' => '--ทั้งหมด--',
-        'class'=>'form-control selct-year',
-        //'onchange'=>'this.form.submit()'
-    ])->label('เริ่มปี');?>
-    </div>
-    <div class="col-sm-6">
-    <?=$form->field($models['year-search'], 'end')->dropDownList(FiscalYear::getList(), [
-        'prompt' => '--ทั้งหมด--',
-        'class'=>'form-control selct-year',
-        //'onchange'=>'this.form.submit()'
-    ])->label('สิ้นสุดปี');
-    ?>
-     </div> 
-     </div>
-     <?php
-    ActiveForm::end();
-$js[] = <<< JS
-    var form = {$form->id};
-    $('.selct-year').change(function(){
-        var start = $("#yearsearch-start.selct-year option:selected").val();
-        var end = $("#yearsearch-end.selct-year option:selected").val();
-        //$("#yearsearch-end.selct-year").val(start);
-        if(start && end){
-            $(form).submit();
-        }
-        //alert($(this).find('option:selected').val());
-    });
-
-JS;
-$this->registerJs(implode('\n',$js));    
+    ],
+]);
 ?>
-    
-<?php
+<div class="person-index">
 
-$columns[] = ['class' => 'yii\grid\SerialColumn'];
-$columns[] = [
-                'attribute'=>'section_id',
-                'value'=>'section.title',
-                'group'=>true,  // enable grouping,
-                'groupedRow'=>true,                    // move grouped column to a single grouped row
-                'groupOddCssClass'=>'kv-grouped-row',  // configure odd group cell css class
-                'groupEvenCssClass'=>'kv-grouped-row', // configure even group cell css class
-            ];
-$columns[] = [
-                'label'=>Yii::t('andahrm/report','Government service'),
-                'attribute'=>'title',
-                'value'=>'titleLevel',
-            ];
-$columns[] = [
-                
-                'attribute'=>'count_year',
-            ];
-            
-foreach(range($models['year-search']->start,$models['year-search']->end) as $year){
-    $columns[] = [
-        'label'=>$year,
-        'content' => function($model) use($year){
-            return $model->getRateDate($year);
-        }
-    ];
-}
-
-
-
-?>    
-   <?= GridView::widget([
+    <?= GridView::widget([
         'dataProvider' => $dataProvider,
-        //'filterModel' => $searchModel,
-        'columns' => $columns
+        'filterModel' => $searchModel,
+        'id' => 'data-grid',
+        'pjax'=>true,
+//        'resizableColumns'=>true,
+//        'resizeStorageKey'=>Yii::$app->user->id . '-' . date("m"),
+//        'floatHeader'=>true,
+//        'floatHeaderOptions'=>['scrollingTop'=>'50'],
+        'export' => [
+            'label' => Yii::t('yii', 'Page'),
+            'fontAwesome' => true,
+            'target' => GridView::TARGET_SELF,
+            'showConfirmAlert' => false,
+        ],
+        
+        'toolbar' => [
+            '{export}',
+            '{toggleData}',
+            $fullExportMenu,
+        ],
+        'columns' => $gridColumns,
     ]); ?>
-<?php //Pjax::end(); ?>
 </div>
+<?php
+$js[] = "
+$(document).on('click', '#btn-reload-grid', function(e){
+    e.preventDefault();
+    $.pjax.reload({container: '#data-grid-pjax'});
+});
+";
+
+$this->registerJs(implode("\n", $js));
+
