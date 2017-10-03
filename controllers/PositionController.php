@@ -21,14 +21,6 @@ class PositionController extends \yii\web\Controller
     
     public function actionIndex($code=null)
     {
-        $test = new \console\controllers\TestController(fhir, Yii::$app); 
-         $test->runAction('index');
-        
-        $test = new \console\controllers\TestController(Yii::$app->controller->id, Yii::$app); 
-        $test->actionIndex();
-        exit();
-        
-        
         if($code){
             $models = Position::find()->all();
             foreach($models as $model){
