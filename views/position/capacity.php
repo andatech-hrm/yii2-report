@@ -153,7 +153,7 @@ $columns[] = [
             }
             
   $columns[] = [
-                'label'=>Yii::t('andahrm/report','Note'),
+                'label'=>Yii::t('andahrm/structure', 'Note'),
                 'attribute'=>'note',
                 'headerOptions' => ['style' => 'display: none;',],
             ];   
@@ -161,7 +161,7 @@ $columns[] = [
             
 $beforeColumns[] = ['content'=>'#', 'options'=>['rowspan'=>2, 'class'=>'text-center warning']];
 $beforeColumns[] = ['content'=>Yii::t('andahrm/report','Government service'), 'options'=>['rowspan'=>2, 'class'=>'text-center warning']];
-$beforeColumns[] = ['content'=>Yii::t('andahrm/report', 'Rate Ols'), 'options'=>['rowspan'=>2, 'class'=>'text-center warning']];
+$beforeColumns[] = ['content'=>Yii::t('andahrm/report', 'Rate Old'), 'options'=>['rowspan'=>2, 'class'=>'text-center warning']];
 if($colMerge){
     $beforeColumns[] = ['content'=>'New Rate', 'options'=>['colspan'=>$colMerge, 'class'=>'text-center warning']];
     $beforeColumns[] = ['content'=>Yii::t('andahrm/report','Up Down'), 'options'=>['colspan'=>$colMerge, 'class'=>'text-center warning']];
