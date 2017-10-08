@@ -66,6 +66,9 @@ $columns = [
         'attribute' => 'updated_by',
         'value' => 'updatedBy.fullname'
     ],
+    'open_date' => [
+        'attribute' => 'open_date',
+    ],
 ];
 
 $gridColumns = [
@@ -73,6 +76,7 @@ $gridColumns = [
     $columns['code'],
     $columns['title'],
     $columns['position_line_id'],
+    $columns['open_date'],
     //$columns['position_type_id'],
     //$columns['position_level_id'],
     //$columns['status'],

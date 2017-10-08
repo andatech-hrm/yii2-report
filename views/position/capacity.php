@@ -9,7 +9,7 @@ use andahrm\structure\models\FiscalYear;
 /* @var $searchModel andahrm\edoc\models\EdocSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = Yii::t('andahrm/report', 'Position Report');
+$this->title = Yii::t('andahrm/report', 'Capacity');
 $this->params['breadcrumbs'][] = $this->title;
 
 $new_sort = FiscalYear::getList();
@@ -72,7 +72,10 @@ $this->registerJs(implode('\n',$js));
     
 <?php
 
-$columns[] = ['class' => 'kartik\grid\SerialColumn'];
+$columns[] = [
+    'class' => 'kartik\grid\SerialColumn',
+    'headerOptions' => ['style' => 'display: none;',],
+];
 $columns[] = [
                 'attribute'=>'section_id',
                 'value'=>'section.title',
@@ -86,10 +89,10 @@ $columns[] = [
                 'label'=>Yii::t('andahrm/report','Government service'),
                 'attribute'=>'title',
                 'value'=>'titleLevel',
+                'headerOptions' => ['style' => 'display: none;',],
             ];
             
-$columns[] = [
-                
+            $columns[] = [
                 'attribute'=>'count_year',
                 'pageSummary'=>true,
                  'value' => function($model){
@@ -100,30 +103,70 @@ $columns[] = [
                     $where['position_level_id'] = $model->position_level_id;
                     $where['position_line_id'] = $model->position_line_id;
                     return Html::a($model->count_year,['/report/position','PositionSearch'=>$where]);
-                }
+                },
+               'headerOptions' => ['style' => 'display: none;',],
             ];
             
-foreach(range($models['year-search']->start,$models['year-search']->end) as $year){
-    $columns[] = [
-        'label'=>$year+543,
-        'pageSummary'=>true,
-        'value' => function($model) use($year){
-            return $model->getRateDate($year);
-        },
-        'content' => function($model) use($year){
-            $where['section_id'] = $model->section_id;
-            $where['position_level_id'] = $model->position_level_id;
-            $where['position_line_id'] = $model->position_line_id;
-            //$where['year'] = date('Y');
-            if($get = Yii::$app->request->queryParams){
-               // $where['year'] = $get['YearSearch']['year'];
+            $colMerge = 0;
+            if($models['year-search']->start && $models['year-search']->end){
+                foreach(range($models['year-search']->start,$models['year-search']->end) as $year){
+                    $columns[] = [
+                        'label'=>$year+543,
+                        'pageSummary'=>true,
+                        'value' => function($model) use($year){
+                            return $model->getNewRate($year);
+                        },
+                        'content' => function($model) use($year){
+                            $where['section_id'] = $model->section_id;
+                            $where['position_level_id'] = $model->position_level_id;
+                            $where['position_line_id'] = $model->position_line_id;
+                            $where['year'] = $year;
+                            return Html::a($model->getNewRate($year),['/report/position','PositionSearch'=>$where]);
+                        }
+                    ];
+                    ++$colMerge;
+                }
             }
-
-            return Html::a($model->getRateDate($year),['/report/position','PositionSearch'=>$where]);
-        }
-    ];
+            
+            if($models['year-search']->start && $models['year-search']->end){
+                foreach(range($models['year-search']->start,$models['year-search']->end) as $year){
+                    $columns[] = [
+                        'label'=>$year+543,
+                        'pageSummary'=>true,
+                        'value' => function($model) use($year,$models){
+                            $oldYear = $models['year-search']->start;
+                            return $model->getUpDown($oldYear,$year);
+                        },
+                        'content' => function($model) use($year,$models){
+                            $where['section_id'] = $model->section_id;
+                            $where['position_level_id'] = $model->position_level_id;
+                            $where['position_line_id'] = $model->position_line_id;
+                            //$where['year'] = date('Y');
+                            if($get = Yii::$app->request->queryParams){
+                               // $where['year'] = $get['YearSearch']['year'];
+                            }
+                            $oldYear = $models['year-search']->start;
+                            return Html::a($model->getUpDown($oldYear,$year),['/report/position','PositionSearch'=>$where]);
+                        }
+                    ];
+                }
+            }
+            
+  $columns[] = [
+                'label'=>Yii::t('andahrm/report','Note'),
+                'attribute'=>'note',
+                'headerOptions' => ['style' => 'display: none;',],
+            ];   
+            
+            
+$beforeColumns[] = ['content'=>'#', 'options'=>['rowspan'=>2, 'class'=>'text-center warning']];
+$beforeColumns[] = ['content'=>Yii::t('andahrm/report','Government service'), 'options'=>['rowspan'=>2, 'class'=>'text-center warning']];
+$beforeColumns[] = ['content'=>Yii::t('andahrm/structure', 'Count Year'), 'options'=>['rowspan'=>2, 'class'=>'text-center warning']];
+if($colMerge){
+    $beforeColumns[] = ['content'=>'New Rate', 'options'=>['colspan'=>$colMerge, 'class'=>'text-center warning']];
+    $beforeColumns[] = ['content'=>Yii::t('andahrm/report','Up Down'), 'options'=>['colspan'=>$colMerge, 'class'=>'text-center warning']];
 }
-
+$beforeColumns[] = ['content'=>'Note', 'options'=>[ 'rowspan'=>2,'class'=>'text-center warning']];
 
 
 ?>    
@@ -131,6 +174,12 @@ foreach(range($models['year-search']->start,$models['year-search']->end) as $yea
         'dataProvider' => $dataProvider,
         //'filterModel' => $searchModel,
         'showPageSummary' => true,
+        'beforeHeader'=>[
+        [
+            'columns'=>$beforeColumns,
+            'options'=>['class'=>'skip-export'] // remove this row from export
+        ]
+    ],
         'columns' => $columns
     ]); ?>
 <?php //Pjax::end(); ?>

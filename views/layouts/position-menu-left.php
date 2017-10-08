@@ -28,7 +28,12 @@ use mdm\admin\components\Helper;
                             'icon'=>'fa fa-sitemap'
                      ];    
                     
-      
+                    $menuItems[] =  [
+                           'label' => Yii::t('andahrm/report', 'Pay'),
+                            'url' => ["/{$module}/position/pay"],
+                            'icon'=>'fa fa-sitemap'
+                     ];    
+                    
                   
       
                     $menuItems = Helper::filter($menuItems);

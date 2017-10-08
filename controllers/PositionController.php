@@ -47,23 +47,33 @@ class PositionController extends \yii\web\Controller
     public function actionCapacity()
     {
         
+        $models['year-search'] = new YearSearch();
+        $models['year-search']->load(Yii::$app->request->get());
+         
         
-         $models['year-search'] = new YearSearch();
-        if(!$models['year-search']->load(Yii::$app->request->get())){
-            $models['year-search']->year = date('Y');
-        }
+        $modelPositionsCount = Position::find()->from("position p");
+        $modelPositionsCount->select(['count(p.id)']);
+        $modelPositionsCount->where('p.section_id = position.section_id');
+        $modelPositionsCount->andWhere('p.position_line_id = position.position_line_id');
+        $modelPositionsCount->andWhere('p.position_level_id = position.position_level_id');
+       if($models['year-search']->start !== null && !empty($models['year-search']->start)){
+            $y = intval($models['year-search']->start);
+            $dateBetween = FiscalYear::getDateBetween($y);
+            $modelPositionsCount->andWhere("DATE(p.open_date) <= '{$dateBetween->date_end}' OR p.open_date IS NULL" );
+            //$modelPositionsCount->Where(['p.open_date'=>null ]);
+        } 
+        
+        //$modelPositionsCount->groupBy(['p.section_id','p.position_line_id', 'p.position_level_id']);
+         
         
         
         //$modelSections = Section::find();
         $modelPositions = Position::find();
-        $modelPositions->select(['*', 'count(*) as count_year']);
+        $modelPositions->select(['*', "count_year" => $modelPositionsCount]);
         
-        // $select = [];
-        // $select[] = "*";
-        // foreach(FiscalYear::getList() as $year => $yearTh){
-        //     $select[] = 'y'.$year;
-        //     //$modelPositions->addSelect('y'.$year);
-        // }
+        //  $modelPositions->where('section_id = 2');
+        // $modelPositions->andWhere('position_line_id = 2');
+        // $modelPositions->andWhere('position_level_id = 8');
         
         $modelPositions->groupBy(['section_id','position_line_id', 'position_level_id']);
         
@@ -80,6 +90,7 @@ class PositionController extends \yii\web\Controller
                 'defaultOrder' => [
                     //'created_at' => SORT_DESC,
                     'section_id' => SORT_ASC, 
+                    'id' => SORT_ASC, 
                 ]
             ],
         ]);
@@ -92,6 +103,11 @@ class PositionController extends \yii\web\Controller
         
         
        
+    }
+    
+    
+    public function actionPay(){
+        return 555;
     }
 
 }
