@@ -264,7 +264,7 @@ $beforeColumns[] = ['content'=>$position->getAttributeLabel('position_level_id')
 $beforeColumns[] = ['content'=>Yii::t('andahrm/report','Count All'), 'options'=>['rowspan'=>2, 'class'=>'text-center info']];
 $beforeColumns[] = ['content'=>Yii::t('andahrm/report','Count Current'), 'options'=>['colspan'=>2, 'class'=>'text-center info']];
 if($colMerge){
-    $beforeColumns[] = ['content'=>Yii::t('andahrm/report','New Rate'), 'options'=>['colspan'=>$colMerge, 'class'=>'text-center info']];
+    $beforeColumns[] = ['content'=>Yii::t('andahrm/report','Rate New'), 'options'=>['colspan'=>$colMerge, 'class'=>'text-center info']];
     $beforeColumns[] = ['content'=>Yii::t('andahrm/report','Up Down'), 'options'=>['colspan'=>$colMerge, 'class'=>'text-center info']];
     $beforeColumns[] = ['content'=>Yii::t('andahrm/report','Increased Expenses'), 'options'=>['colspan'=>$colMerge, 'class'=>'text-center info']];
     $beforeColumns[] = ['content'=>Yii::t('andahrm/report','Pay Total'), 'options'=>['colspan'=>$colMerge, 'class'=>'text-center info']];
