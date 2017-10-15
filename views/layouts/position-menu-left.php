@@ -9,7 +9,7 @@ use mdm\admin\components\Helper;
  $module = $this->context->module->id;
 ?>
 <div class="row hidden-print">
-    <div class="col-md-3"> 
+    <div class="col-md-12"> 
       
       
 
@@ -32,6 +32,12 @@ use mdm\admin\components\Helper;
                            'label' => Yii::t('andahrm/report', 'Pay'),
                             'url' => ["/{$module}/position/pay"],
                             'icon'=>'fa fa-sitemap'
+                     ];   
+                     
+                     $menuItems[] =  [
+                           'label' => Yii::t('andahrm/report', 'Account'),
+                            'url' => ["/{$module}/position/account"],
+                            'icon'=>'fa fa-sitemap'
                      ];    
                     
                   
@@ -41,36 +47,24 @@ use mdm\admin\components\Helper;
                     
         <div class="x_panel tile">
             <div class="x_title">
-                <h2><?= Yii::t('andahrm/report', 'Report') ?></h2>
+                <h2><?= Yii::t('andahrm/report', 'Report') ?> <?=$this->title;?></h2>
                 <div class="clearfix"></div>
             </div>
             <div class="x_content">            
                     <?php
                     //$nav = new Navigate();
                     echo Menu::widget([
-                        'options' => ['class' => 'nav nav-pills nav-stacked'],
+                        'options' => ['class' => 'nav nav-tabs'],
                         'encodeLabels' => false,
                         //'activateParents' => true,
                         //'linkTemplate' =>'<a href="{url}">{icon} {label} {badge}</a>',
                         'items' => $menuItems,
                     ]);
-                    ?>
-         <div class="clearfix"></div>
-            </div>
-        </div>
-      
-</div>
-      
-
-    <div class="col-md-9">
-        <div class="x_panel tile">
-            <div class="x_title">
-        <h2><?= $this->title; ?></h2>
-        <div class="clearfix"></div>
-            </div>
-            <div class="x_content">    
-        <?php echo $content; ?>
-        <div class="clearfix"></div>
+                    ?>   
+            <!--<h2><?= $this->title; ?></h2>-->
+                <br/>
+                <?php echo $content; ?>
+                <div class="clearfix"></div>
             </div>
         </div>
         

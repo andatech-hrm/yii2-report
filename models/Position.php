@@ -38,6 +38,9 @@ class Position extends \andahrm\structure\models\Position
     // }
     
     public $count_year;
+    public $count_salary;
+    public $count_person;
+    
     
      public function attributeLabels()
     {
@@ -48,8 +51,79 @@ class Position extends \andahrm\structure\models\Position
     }
     
     public function getTitleLevel(){
-        return $this->title.($this->position_level_id?' '.$this->positionLevel->title:'')." ".$this->id;
+        return $this->title.($this->position_level_id?' '.$this->positionLevel->title:'');
         //return $this->title.($this->position_level_id?' '.$this->positionLevel->title:'');
+    }
+    
+    public function getCurrentPerson(){
+        $model = self::find()
+        ->select('count(person_position_salary.user_id) as count_person')
+        ->joinWith('personPositionSalary')
+        //->where(['<=','rate_date',$year])
+        ->andWhere(['position.section_id'=>$this->section_id])
+        ->andWhere(['position.position_line_id'=>$this->position_line_id])
+        ->andWhere(['position.position_level_id'=>$this->position_level_id])
+        //->groupBy('position_id')
+        ->one();
+        
+        return $model->count_person?$model->count_person:0;
+    }
+    
+    public function getCurrentSalary(){
+        $model = self::find()
+        ->select('sum(person_position_salary.salary) as count_salary')
+        ->joinWith('personPositionSalary')
+        //->where(['<=','rate_date',$year])
+        ->andWhere(['position.section_id'=>$this->section_id])
+        ->andWhere(['position.position_line_id'=>$this->position_line_id])
+        ->andWhere(['position.position_level_id'=>$this->position_level_id])
+        ->one();
+        return $model->count_salary?$model->count_salary:0;
+        //return $model->count_salary?Yii::$app->formatter->asDecimal($model->count_salary,0):0;
+    }
+    
+    public function getYearSalary($year){
+        $model = self::find()
+        ->select('sum(person_position_salary.salary) as count_salary')
+        ->joinWith('personPositionSalary')
+        //->where(['<=','rate_date',$year])
+        ->andWhere(['position.section_id'=>$this->section_id])
+        ->andWhere(['position.position_line_id'=>$this->position_line_id])
+        ->andWhere(['position.position_level_id'=>$this->position_level_id]);
+        $last='';
+        if(!empty($year)){
+            $y = intval($year);
+            $dateBetween = FiscalYear::getDateBetween($y);
+            //$model->andWhere(['<', 'DATE(open_date)', $dateBetween->date_end]);
+            $model->andWhere("DATE(person_position_salary.adjust_date) <= '{$dateBetween->date_end}' " );
+            $last = $dateBetween->date_end;
+        } 
+        
+        $model = $model->one();
+        return $model->count_salary?$model->count_salary:0;
+        //return $model->count_salary?Yii::$app->formatter->asDecimal($model->count_salary,0):0;
+    }
+    
+    public function getTotalSalary($year){
+        $model = self::find()
+        ->select('sum(person_position_salary.salary) as count_salary')
+        ->joinWith('personPositionSalary')
+        //->where(['<=','rate_date',$year])
+        ->andWhere(['position.section_id'=>$this->section_id])
+        ->andWhere(['position.position_line_id'=>$this->position_line_id])
+        ->andWhere(['position.position_level_id'=>$this->position_level_id]);
+        $last='';
+        if(!empty($year)){
+            $y = intval($year);
+            $dateBetween = FiscalYear::getDateBetween($y);
+            //$model->andWhere(['<', 'DATE(open_date)', $dateBetween->date_end]);
+            $model->andWhere("DATE(person_position_salary.adjust_date) <= '{$dateBetween->date_end}' " );
+            $last = $dateBetween->date_end;
+        } 
+        
+        $model = $model->one();
+        return $model->count_salary?$model->count_salary:0;
+        //return $model->count_salary?Yii::$app->formatter->asDecimal($model->count_salary,0):0;
     }
     
     public function getNewRate($year){
