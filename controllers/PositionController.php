@@ -171,6 +171,9 @@ class PositionController extends \yii\web\Controller
         $models['year-search']->load(Yii::$app->request->get());
         
         $modelPositions = Position::find();
+        //$modelPositions->select(['sum_salary'=>'person_position_salary.salary','position.*']);
+        $modelPositions->joinWith('personPositionSalary');
+        $modelPositions->where(['person_type_id'=>2]);
         
         $dataProvider = new ActiveDataProvider([
             'query' => $modelPositions,
@@ -178,8 +181,9 @@ class PositionController extends \yii\web\Controller
             'sort' => [
                 'defaultOrder' => [
                     //'created_at' => SORT_DESC,
-                    // 'section_id' => SORT_ASC, 
-                    // 'person_type_id' => SORT_ASC, 
+                     'section_id' => SORT_ASC, 
+                     'position_type_id' => SORT_DESC, 
+                     'position_level_id' => SORT_DESC, 
                     // 'id' => SORT_ASC, 
                 ]
             ],

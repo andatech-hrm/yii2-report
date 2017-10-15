@@ -40,6 +40,7 @@ class Position extends \andahrm\structure\models\Position
     public $count_year;
     public $count_salary;
     public $count_person;
+    //public $sum_salary;
     
     
      public function attributeLabels()
@@ -233,6 +234,12 @@ class Position extends \andahrm\structure\models\Position
             //return $down?"-".$down:'-';
             //return $down>0?'-'.$down:0;
         }
+    }
+    
+    
+    public function getSumSalary(){
+        return $this->hasMany(PersonPositionSalary::className(), ['position_id' => 'id'])->sum('salary');
+        //return $model->sum('salary');
     }
 
 }
