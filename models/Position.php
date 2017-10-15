@@ -45,7 +45,7 @@ class Position extends \andahrm\structure\models\Position
      public function attributeLabels()
     {
         $attr = parent::attributeLabels();
-        $attr['count_year'] = Yii::t('andahrm/structure', 'Count Year');
+        $attr['count_year'] = Yii::t('andahrm/report', 'Count Year');
         $attr['sum'] = Yii::t('andahrm/report', 'Sum');
         return $attr;
     }

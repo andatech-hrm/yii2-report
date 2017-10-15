@@ -206,8 +206,8 @@ $columns[] = [
 $beforeColumns[] = ['content'=>'#', 'options'=>['rowspan'=>2,'class'=>'text-center info']];
 $beforeColumns[] = ['content'=>$position->getAttributeLabel('positionLine.title'), 'options'=>['rowspan'=>2, 'class'=>'text-center info']];
 $beforeColumns[] = ['content'=>$position->getAttributeLabel('position_level_id'), 'options'=>['rowspan'=>2, 'class'=>'text-center info']];
-$beforeColumns[] = ['content'=>Yii::t('andahrm','Count All'), 'options'=>['rowspan'=>2, 'class'=>'text-center info']];
-$beforeColumns[] = ['content'=>Yii::t('andahrm','Count Current'), 'options'=>['colspan'=>2, 'class'=>'text-center info']];
+$beforeColumns[] = ['content'=>Yii::t('andahrm/report','Count All'), 'options'=>['rowspan'=>2, 'class'=>'text-center info']];
+$beforeColumns[] = ['content'=>Yii::t('andahrm/report','Count Current'), 'options'=>['colspan'=>2, 'class'=>'text-center info']];
 if($colMerge){
     $beforeColumns[] = ['content'=>Yii::t('andahrm/report','New Rate'), 'options'=>['colspan'=>$colMerge, 'class'=>'text-center info']];
     $beforeColumns[] = ['content'=>Yii::t('andahrm/report','Up Down'), 'options'=>['colspan'=>$colMerge, 'class'=>'text-center info']];

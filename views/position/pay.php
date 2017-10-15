@@ -140,7 +140,7 @@ $columns[] = [
             
             $columns[] = [
                 //'attribute'=>'current_salary',
-                'label'=>'จำนวน(คน)',
+                'label'=>Yii::t('andahrm/report','Amount(People)'),//จำนวน(คน)
                 'format'=>['decimal',0],
                 'pageSummary'=>true,
                  'value' => function($model){
@@ -150,7 +150,7 @@ $columns[] = [
             
             $columns[] = [
                 //'attribute'=>'count_year',
-                'label'=>'เงินเดือน(๑)',
+                'label'=>Yii::t('andahrm/report','Salary(1)'),//'เงินเดือน(๑)',
                 'pageSummary'=>true,
                 'contentOptions'=>['align'=>'right'],
                 'value'=>'currentSalary',
@@ -261,8 +261,8 @@ $columns[] = [
 $beforeColumns[] = ['content'=>'#', 'options'=>['rowspan'=>2,'class'=>'text-center info']];
 $beforeColumns[] = ['content'=>$position->getAttributeLabel('positionLine.title'), 'options'=>['rowspan'=>2, 'class'=>'text-center info']];
 $beforeColumns[] = ['content'=>$position->getAttributeLabel('position_level_id'), 'options'=>['rowspan'=>2, 'class'=>'text-center info']];
-$beforeColumns[] = ['content'=>Yii::t('andahrm','Count All'), 'options'=>['rowspan'=>2, 'class'=>'text-center info']];
-$beforeColumns[] = ['content'=>Yii::t('andahrm','Count Current'), 'options'=>['colspan'=>2, 'class'=>'text-center info']];
+$beforeColumns[] = ['content'=>Yii::t('andahrm/report','Count All'), 'options'=>['rowspan'=>2, 'class'=>'text-center info']];
+$beforeColumns[] = ['content'=>Yii::t('andahrm/report','Count Current'), 'options'=>['colspan'=>2, 'class'=>'text-center info']];
 if($colMerge){
     $beforeColumns[] = ['content'=>Yii::t('andahrm/report','New Rate'), 'options'=>['colspan'=>$colMerge, 'class'=>'text-center info']];
     $beforeColumns[] = ['content'=>Yii::t('andahrm/report','Up Down'), 'options'=>['colspan'=>$colMerge, 'class'=>'text-center info']];
