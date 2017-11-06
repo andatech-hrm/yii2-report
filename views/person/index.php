@@ -70,7 +70,7 @@ $gridColumns = [
                 '<img class="media-object img-circle" src="'.$model->photo.'" style="width: 32px; height: 32px;"> </div> ' . 
                 '<div class="media-body"> ' . 
                 '<h4 class="media-heading" style="margin:0;">' . 
-                Html::a($model->fullname, ['view', 'id' => $model->user_id], ['class' => 'green', 'data-pjax' => 0]) . '</h4> ' . 
+                Html::a($model->fullname, ['/person/default/view', 'id' => $model->user_id], ['class' => 'green', 'data-pjax' => 0,'target'=>'_blank']) . '</h4> ' . 
                 '<small>'.$model->positionTitle.'<small></div> </div>';
             return $res;
         }
