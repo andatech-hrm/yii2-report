@@ -5,7 +5,9 @@ namespace andahrm\report\controllers;
 use Yii;
 use yii\web\Controller;
 use yii\data\ActiveDataProvider;
+use yii\data\ArrayDataProvider;
 use andahrm\person\models\Person;
+use andahrm\person\models\Religion;
 use andahrm\report\models\PersonSearch;
 use andahrm\positionSalary\models\PersonPosition;
 use andahrm\structure\models\FiscalYear;
@@ -384,6 +386,22 @@ class PersonController extends Controller
         return $this->render('leave'
         , ['models' => $models]
         );
+    }
+    
+    public function actionReligion(){
+        $modelReligion = Religion::find()->all();
+        
+        $dataProvider = new ArrayDataProvider([
+            'allModels'=>$modelReligion
+            ]);
+        
+        
+        
+        
+        return $this->render('religion',[
+            'modelReligion'=>$modelReligion,
+            'dataProvider'=>$dataProvider
+            ]);
     }
     
 }

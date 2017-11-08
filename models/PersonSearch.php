@@ -14,6 +14,7 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
 {
     public $fullname;
     public $person_type_id;
+    public $religion_id;
     public $year;
     /**
      * @inheritdoc
@@ -21,7 +22,7 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
     public function rules()
     {
         return [
-            [['user_id', 'title_id', 'created_at', 'created_by', 'updated_at', 'updated_by','person_type_id','year'], 'integer'],
+            [['user_id', 'title_id', 'created_at', 'created_by', 'updated_at', 'updated_by','person_type_id','year','religion_id'], 'integer'],
             [['citizen_id', 'firstname_th', 'lastname_th', 'firstname_en', 'lastname_en', 'gender', 'tel', 'phone', 'birthday', 'fullname', 'full_address_contact'], 'safe'],
         ];
     }
@@ -70,6 +71,11 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
         if($this->person_type_id){
              $query->joinWith(['positionSalary.position']);
              $query->andFilterWhere(['position.person_type_id'=>$this->person_type_id]);
+        }
+        
+        if($this->religion_id){
+             $query->joinWith(['detail']);
+             $query->andFilterWhere(['person_detail.religion_id'=>$this->religion_id]);
         }
         
         if($this->year){
