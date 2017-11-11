@@ -34,8 +34,10 @@ $columns = [
         'value' => function($model) {
             // if ($model->addressContact === null) { return null; }
             $res = $model->full_address_contact;
+            if($model->addressContact){
             $res .= '<br />'.$model->addressContact->postcode.' &nbsp<i class="fa fa-phone"></i>โทร. ';
             $res .= $model->addressContact->phone;
+            }
             return $res;
         },
     ],

@@ -14,6 +14,7 @@ use andahrm\report\models\PersonSearch;
 use andahrm\positionSalary\models\PersonPosition;
 use andahrm\structure\models\FiscalYear;
 use andahrm\structure\models\Position;
+use andahrm\structure\models\Section;
 //use andahrm\positionSalary\models\PersonPositionSalary;
 use andahrm\report\models\PersonPositionSalary;
 use andahrm\report\models\PersonType;
@@ -397,9 +398,6 @@ class PersonController extends Controller
             'allModels'=>$modelReligion
             ]);
         
-        
-        
-        
         return $this->render('religion',[
             'modelReligion'=>$modelReligion,
             'dataProvider'=>$dataProvider
@@ -433,7 +431,7 @@ class PersonController extends Controller
             
             if($f_degree != $degree->degree){
                 $f_degree = $degree->degree;
-                $count =0;
+                $count = 0;
             }
             
             foreach($modelUser as $user){
@@ -459,13 +457,232 @@ class PersonController extends Controller
             'pagination'=>false,
             ]);
         
-        
-        
-        
         return $this->render('degree',[
             'modelDegree'=>$modelDegrees,
             'dataProvider'=>$dataProvider
             ]);
     }
+    
+     
+    public function actionTypePosition(){
+        
+        $modelUser = Education::find()
+            //->limit(1)
+            ->groupBy('user_id')
+            ->orderBy(['degree'=>SORT_ASC, 'year_end'=>SORT_ASC])
+            ->all();
+        
+        $modelDegree = Education::find()
+        //->where(['=', "user_id",$find ])
+        //->distinct('degree')
+        //->from('person_education as ss')
+        //->select(['degree'])
+        ->orderBy('degree')
+        //->addSelect(['count_person'=>$find])
+        ->groupBy('degree');
+        //->asArray();
+        //echo $modelDegree->createCommand()->getRawSql();
+        $modelDegree = $modelDegree->all();
+        
+        $modelDegrees = [];
+        $f_degree = $modelDegree[0]->degree;
+        $count =0;
+        foreach($modelDegree as $degree){
+            
+            if($f_degree != $degree->degree){
+                $f_degree = $degree->degree;
+                $count = 0;
+            }
+            
+            foreach($modelUser as $user){
+                if($user->degree == $degree->degree)
+                $count++;
+            }
+            if($count){
+                $degree->count_person = $count;
+                $modelDegrees[] = $degree;
+            }
+        }
+        
+        ArrayHelper::multisort($modelDegrees, ['count_person'], [SORT_DESC]);
+        
+        //$modelDegrees = Education::find()->select(['degree','count_person'=>'count(user_id)'])->groupBy('degree')->all();
+        
+        // echo "<pre>";
+        // print_r($modelDegrees);
+        // exit();
+        
+        $dataProvider = new ArrayDataProvider([
+            'allModels'=>$modelDegrees,
+            'pagination'=>false,
+            ]);
+        
+        return $this->render('type-position',[
+            'modelDegree'=>$modelDegrees,
+            'dataProvider'=>$dataProvider
+            ]);
+    }
+    
+    
+    public function actionSection(){
+        
+        $modelPerson = PersonPositionSalary::find()
+            ->select('count(distinct(user_id))')
+            ->joinWith('position')
+            ->where('position.section_id = ssss.id');
+            //->groupBy('position.section_id');
+        
+        $modelSection= Section::find()
+        //->where(['=', "user_id",$find ])
+        //->distinct('degree')
+        ->from('section as ssss')
+        ->select(['*','count_person'=>$modelPerson]);
+        //->asArray();
+        //echo $modelDegree->createCommand()->getRawSql();
+        $modelSection = $modelSection->all();
+        
+        
+        //$modelDegrees = Education::find()->select(['degree','count_person'=>'count(user_id)'])->groupBy('degree')->all();
+        
+        // echo "<pre>";
+        // print_r($modelDegrees);
+        // exit();
+        
+        $dataProvider = new ArrayDataProvider([
+            'allModels'=>$modelSection,
+            'pagination'=>false,
+            ]);
+        
+        return $this->render('section',[
+            'models'=>$modelSection,
+            'dataProvider'=>$dataProvider
+            ]);
+    }
+    
+    
+    public function actionRangeAge(){
+        
+        $range_age = [];
+        // $range_age[] = [
+        //     'title'=>'ต่ำกว่า 20',
+        //     'start'=>date('Y-m-d'),
+        //     'end'=>date('Y-m-d', strtotime('-20 year')),
+        //     'count_person'=>0
+        // ];
+        // $range_age[] = [
+        //     'title'=>'21 - 30',
+        //     'start'=>date('Y-m-d', strtotime('-20 year')),
+        //     'end'=>date('Y-m-d', strtotime('-30 year')),
+        //     'count_person'=>0
+        //     ];
+        // $range_age[] = [
+        //     'title'=>'31 - 40',
+        //     'start'=>date('Y-m-d', strtotime('-30 year')),
+        //     'end'=>date('Y-m-d', strtotime('-40 year')),
+        //     'count_person'=>0
+        //     ];
+        // $range_age[] = [
+        //     'title'=>'41 - 50',
+        //     'start'=>date('Y-m-d', strtotime('-40 year')),
+        //     'end'=>date('Y-m-d', strtotime('-50 year')),
+        //     'count_person'=>0
+        //     ];
+        // $range_age[] = [
+        //     'title'=>'51 - 60',
+        //     'start'=>date('Y-m-d', strtotime('-50 year')),
+        //     'end'=>date('Y-m-d', strtotime('-60 year')),
+        //     'count_person'=>0
+        //     ];
+            
+            $range_age[] = [
+            'title'=>'ต่ำกว่า 20',
+            'start'=>0,
+            'end'=>20,
+            'count_person'=>0,
+            'data'=>[]
+        ];
+        $range_age[] = [
+            'title'=>'21 - 30',
+            'start'=>21,
+            'end'=>30,
+            'count_person'=>0,
+            'data'=>[]
+            ];
+        $range_age[] = [
+            'title'=>'31 - 40',
+            'start'=>31,
+            'end'=>40,
+            'count_person'=>0,
+            'data'=>[]
+            ];
+        $range_age[] = [
+            'title'=>'41 - 50',
+            'start'=>41,
+            'end'=>50,
+            'count_person'=>0,
+            'data'=>[]
+            ];
+        $range_age[] = [
+            'title'=>'51 - 60',
+            'start'=>51,
+            'end'=>60,
+            'count_person'=>0,
+            'data'=>[]
+            ];
+            
+        $models = Person::find()
+        ->select(['*','timestampdiff(YEAR,birthday,NOW()) as age'])
+        ->orderBy(['birthday'=>SORT_DESC])
+        ->all();
+        
+        $index = 0;
+        $count_person =0;
+        $rangeOld = $range_age[$index];
+        $data = [];
+        foreach($models as $model){
+            //echo strtotime($rangeOld['end']).' '.strtotime($model->birthday).'<br/>';
+            //echo $rangeOld['end'] .'>='. $model->age."<br/>";
+            
+            // if(!($model->age >= $rangeOld['start'] && $model->age <= $rangeOld['end'] )){
+            //     echo $rangeOld['start'] .'<='. $model->age." - ";
+            //     echo $rangeOld['end'] .'>='. $model->age."<br/>";
+            //     //echo $model->birthday.'<br/>';
+                
+            //     $data = [];
+            //     $index++;
+            //     $count_person=0;
+            //     if((count($range_age)-1)>$index){
+            //         $rangeOld = $range_age[$index];
+            //     }
+            //     //$rangeOld = (count($range_age)-1)>$index?$range_age[$index]:$range_age[$index-1];
+            // }elseif($model->age >= $rangeOld['start'] && $model->age <= $rangeOld['end'] ){
+            
+            
+                foreach($range_age as $key => $range){
+                    if($model->age >= $range['start'] && $model->age <= $range['end'] ){
+                        //$count_person+=1;
+                        $range_age[$key]['count_person'] += 1;
+                        $range_age[$key]['data'][] = ['id'=>$model->user_id,'age'=>$model->age];
+                    }
+                }
+            
+        }
+        
+        // echo "<pre>";
+        // print_r($range_age);
+        // exit();
+        $dataProvider = new ArrayDataProvider([
+            'allModels'=>$range_age,
+            'pagination'=>false,
+            ]);
+        
+        
+        return $this->render('range-age',[
+            'dataProvider'=>$dataProvider,
+            'models'=>$range_age,
+            ]);
+    }
+    
+    
     
 }

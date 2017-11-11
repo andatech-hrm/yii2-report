@@ -42,11 +42,30 @@ use mdm\admin\components\Helper;
                             'url' => ["/{$module}/person/degree"],
                             'icon'=>'fa fa-sitemap'
                      ]; 
+                     
                     $menuItems[] =  [
                             'label' =>  Yii::t('andahrm/report', 'Religion'),
                             'url' => ["/{$module}/person/religion"],
                             'icon'=>'fa fa-sitemap'
                      ]; 
+                     
+                     $menuItems[] =  [
+                            'label' =>  Yii::t('andahrm/report', 'Type Position'),
+                            'url' => ["/{$module}/person/type-position"],
+                            'icon'=>'fa fa-sitemap'
+                     ]; 
+                     
+                     $menuItems[] =  [
+                            'label' =>  Yii::t('andahrm/report', 'Section'),
+                            'url' => ["/{$module}/person/section"],
+                            'icon'=>'fa fa-sitemap'
+                     ];
+                     
+                     $menuItems[] =  [
+                            'label' =>  Yii::t('andahrm/report', 'Range Age'),
+                            'url' => ["/{$module}/person/range-age"],
+                            'icon'=>'fa fa-sitemap'
+                     ];
       
       
                 //     $menuItems[] =  [
