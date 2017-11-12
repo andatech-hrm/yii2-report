@@ -15,6 +15,7 @@ use andahrm\positionSalary\models\PersonPosition;
 use andahrm\structure\models\FiscalYear;
 use andahrm\structure\models\Position;
 use andahrm\structure\models\Section;
+use andahrm\structure\models\PositionType;
 //use andahrm\positionSalary\models\PersonPositionSalary;
 use andahrm\report\models\PersonPositionSalary;
 use andahrm\report\models\PersonType;
@@ -464,47 +465,21 @@ class PersonController extends Controller
     }
     
      
-    public function actionTypePosition(){
+    public function actionPositionType(){
         
-        $modelUser = Education::find()
-            //->limit(1)
-            ->groupBy('user_id')
-            ->orderBy(['degree'=>SORT_ASC, 'year_end'=>SORT_ASC])
-            ->all();
+        $modelPerson = PersonPositionSalary::find()
+            ->select('count(distinct(user_id))')
+            ->joinWith('position')
+            ->where('position.position_type_id = ssss.id');
+            //->groupBy('position.section_id');
         
-        $modelDegree = Education::find()
-        //->where(['=', "user_id",$find ])
-        //->distinct('degree')
-        //->from('person_education as ss')
-        //->select(['degree'])
-        ->orderBy('degree')
-        //->addSelect(['count_person'=>$find])
-        ->groupBy('degree');
-        //->asArray();
-        //echo $modelDegree->createCommand()->getRawSql();
-        $modelDegree = $modelDegree->all();
+        $modelPositionType= PositionType::find()
+        ->from('position_type as ssss')
+        ->where(['!=', "title",'อัตราเงินเดือน' ])
+        ->select(['*','count_person'=>$modelPerson])
+        ->orderBy(['person_type_id'=>SORT_ASC,'id'=>SORT_ASC])
+        ->all();
         
-        $modelDegrees = [];
-        $f_degree = $modelDegree[0]->degree;
-        $count =0;
-        foreach($modelDegree as $degree){
-            
-            if($f_degree != $degree->degree){
-                $f_degree = $degree->degree;
-                $count = 0;
-            }
-            
-            foreach($modelUser as $user){
-                if($user->degree == $degree->degree)
-                $count++;
-            }
-            if($count){
-                $degree->count_person = $count;
-                $modelDegrees[] = $degree;
-            }
-        }
-        
-        ArrayHelper::multisort($modelDegrees, ['count_person'], [SORT_DESC]);
         
         //$modelDegrees = Education::find()->select(['degree','count_person'=>'count(user_id)'])->groupBy('degree')->all();
         
@@ -513,12 +488,12 @@ class PersonController extends Controller
         // exit();
         
         $dataProvider = new ArrayDataProvider([
-            'allModels'=>$modelDegrees,
+            'allModels'=>$modelPositionType,
             'pagination'=>false,
             ]);
         
-        return $this->render('type-position',[
-            'modelDegree'=>$modelDegrees,
+        return $this->render('position-type',[
+            'models'=>$modelPositionType,
             'dataProvider'=>$dataProvider
             ]);
     }

@@ -6,6 +6,12 @@ use yii\bootstrap\ActiveForm;
 use andahrm\structure\models\FiscalYear;
 use kartik\grid\GridView;
 use yii\helpers\Html;
+
+
+$this->title =  Yii::t('andahrm/report', 'Gender');
+$this->params['breadcrumbs'][] = ['label' =>  Yii::t('andahrm/report', 'Report'), 'url' => ['/report/default']];
+$this->params['breadcrumbs'][] = ['label' =>  Yii::t('andahrm/report', 'Person'), 'url' => ['index']];
+$this->params['breadcrumbs'][] = $this->title;
 ?>
 <?php
 foreach ($model as $key => $personType) :

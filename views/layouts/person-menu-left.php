@@ -50,8 +50,8 @@ use mdm\admin\components\Helper;
                      ]; 
                      
                      $menuItems[] =  [
-                            'label' =>  Yii::t('andahrm/report', 'Type Position'),
-                            'url' => ["/{$module}/person/type-position"],
+                            'label' =>  Yii::t('andahrm/report', 'Position Type'),
+                            'url' => ["/{$module}/person/position-type"],
                             'icon'=>'fa fa-sitemap'
                      ]; 
                      

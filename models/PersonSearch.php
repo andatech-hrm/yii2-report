@@ -13,6 +13,7 @@ use andahrm\person\models\Person;
 class PersonSearch extends \andahrm\person\models\PersonSearch
 {
     public $fullname;
+    public $position_type_id;
     public $person_type_id;
     public $religion_id;
     public $year;
@@ -26,7 +27,7 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
     {
         return [
             [['user_id', 'title_id', 'created_at', 'created_by', 'updated_at', 'updated_by','person_type_id','year',
-            'religion_id','section_id','start_age','end_age'], 'integer'],
+            'religion_id','section_id','start_age','end_age','position_type_id'], 'integer'],
             [['citizen_id', 'firstname_th', 'lastname_th', 'firstname_en', 'lastname_en', 'gender', 'tel', 'phone', 'birthday', 'fullname', 'full_address_contact'], 'safe'],
         ];
     }
@@ -72,10 +73,11 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
             return $dataProvider;
         }
         
-        if($this->person_type_id || $this->section_id){
+        if($this->person_type_id || $this->section_id ||$this->position_type_id){
              $query->joinWith(['positionSalary.position']);
              $query->andFilterWhere(['position.person_type_id'=>$this->person_type_id]);
              $query->andFilterWhere(['position.section_id'=>$this->section_id]);
+             $query->andFilterWhere(['position.position_type_id'=>$this->position_type_id]);
         }
         
         if($this->start_age || $this->end_age){

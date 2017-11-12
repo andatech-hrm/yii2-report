@@ -6,7 +6,7 @@ use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
 use andahrm\structure\models\FiscalYear;
 
-$this->title =  Yii::t('andahrm/report', 'Degree');
+$this->title =  Yii::t('andahrm/report', 'Section');
 $this->params['breadcrumbs'][] = ['label' =>  Yii::t('andahrm/report', 'Report'), 'url' => ['/report/default']];
 $this->params['breadcrumbs'][] = ['label' =>  Yii::t('andahrm/report', 'Person'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
