@@ -16,7 +16,7 @@ $data = [];
 $selected = false;
 foreach ($modelDegree as $degree) {
     //$arr = ['name' => $type->title, 'y' => count($type->positions)];
-    $arr = ['name' => $degree->degree.' ('.$degree->count_person.')', 'y' => $degree->count_person];
+    $arr = ['name' => $degree->title.' ('.$degree->count_person.')', 'y' => $degree->count_person];
     $data[] = $arr;
 }
 
@@ -70,7 +70,7 @@ $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\
     'columns'=>[
         ['class' => 'kartik\grid\SerialColumn'],
         [
-            'attribute'=>'degree',
+            'attribute'=>'title',
             'pageSummary'=>Yii::t('andahrm','Total'),
             
         ],
@@ -78,7 +78,7 @@ $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\
             'attribute'=>'count_person',
             'label'=>Yii::t('andahrm', 'Count Person'),
             'content'=>function($model){
-                     $where['religion_id'] = $model->id;
+                     $where['level_id'] = $model->id;
                      return Html::a($model->count_person,['/report/person','PersonSearch'=>$where]);
                  },
             'pageSummary'=>true,

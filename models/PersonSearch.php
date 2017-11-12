@@ -18,8 +18,12 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
     public $religion_id;
     public $year;
     public $section_id;
+    
     public $start_age;
     public $end_age;
+    #edu
+    public $level_id;
+    
     /**
      * @inheritdoc
      */
@@ -27,7 +31,7 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
     {
         return [
             [['user_id', 'title_id', 'created_at', 'created_by', 'updated_at', 'updated_by','person_type_id','year',
-            'religion_id','section_id','start_age','end_age','position_type_id'], 'integer'],
+            'religion_id','section_id','start_age','end_age','position_type_id','level_id'], 'integer'],
             [['citizen_id', 'firstname_th', 'lastname_th', 'firstname_en', 'lastname_en', 'gender', 'tel', 'phone', 'birthday', 'fullname', 'full_address_contact'], 'safe'],
         ];
     }
@@ -88,6 +92,11 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
         if($this->religion_id){
              $query->joinWith(['detail']);
              $query->andFilterWhere(['person_detail.religion_id'=>$this->religion_id]);
+        }
+        
+        if($this->level_id){
+             $query->joinWith(['education']);
+             $query->andFilterWhere(['person_education.level_id'=>$this->level_id]);
         }
         
         if($this->year){
