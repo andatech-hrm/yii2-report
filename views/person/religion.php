@@ -75,8 +75,8 @@ $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\
             
         ],
         [
-            //'attribute'=>''
             'attribute'=>'count_person',
+            'label'=>Yii::t('andahrm', 'Count Person'),
             'content'=>function($model){
                      $where['religion_id'] = $model->id;
                      return Html::a($model->count_person,['/report/person','PersonSearch'=>$where]);

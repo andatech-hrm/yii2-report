@@ -77,6 +77,7 @@ $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\
         ],
         [
             'attribute'=>'count_person',
+            'label'=>Yii::t('andahrm', 'Count Person'),
             'content'=>function($model){
                      $where['start_age'] = $model['start'];
                      $where['end_age'] = $model['end'];
