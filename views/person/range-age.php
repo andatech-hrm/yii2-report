@@ -72,6 +72,7 @@ $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\
         ['class' => 'kartik\grid\SerialColumn'],
         [
             'attribute'=>'title',
+            'label'=>'ช่วงอายุ',
             'pageSummary'=>Yii::t('andahrm','Total'),
             
         ],
