@@ -539,11 +539,23 @@ class PersonController extends Controller
         
         $modelPositionType= PositionType::find()
         ->from('position_type as ssss')
-        ->where(['!=', "title",'อัตราเงินเดือน' ])
+        //->where(['!=', "title",'อัตราเงินเดือน' ])
         ->select(['*','count_person'=>$modelPerson])
         ->orderBy(['person_type_id'=>SORT_ASC,'id'=>SORT_ASC])
         ->all();
         
+        $modelNotSet = PersonPositionSalary::find()
+            //->select('distinct(user_id)')
+            ->joinWith('position')
+            ->where('position.position_type_id IS NULL')
+            //->groupBy('user_id')
+            ->count();
+        
+        $newModel = new PositionType();
+        $newModel->id = "0";
+        $newModel->title = "อื่นๆ";
+        $newModel->count_person = $modelNotSet;
+        $modelPositionType[] = $newModel;
         
         //$modelDegrees = Education::find()->select(['degree','count_person'=>'count(user_id)'])->groupBy('degree')->all();
         

@@ -35,7 +35,7 @@ echo Highcharts::widget([
             'plotBorderWidth' => null,
             'plotShadow' => false,
         ],
-        'title' => ['text' => 'อัตตราส่วนตำแหน่งแบ่งตามประเภท'],
+        'title' => ['text' => 'แบ่งตามศาสนา'],
         'tooltip' => [
             'pointFormat' => '{series.name}: <b>{point.y}</b>'
         ],

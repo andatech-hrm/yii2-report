@@ -36,7 +36,7 @@ echo Highcharts::widget([
             'plotBorderWidth' => null,
             'plotShadow' => false,
         ],
-        'title' => ['text' => 'อัตตราส่วนบุคลากรแบ่งตามวุฒิการศึกษา'],
+        'title' => ['text' => 'แบ่งตามช่วงอายุ'],
         'tooltip' => [
             'pointFormat' => '{series.name}: <b>{point.y}</b>'
         ],

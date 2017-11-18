@@ -57,7 +57,7 @@ echo Highcharts::widget([
         'chart' => [
             'type' => 'column',
         ],
-        'title' => ['text' => 'ประเภทบุคลากร '.$label_year],
+        'title' => ['text' => 'แบ่งตามเพศ'.$label_year],
         'credits' => [
             'enabled' => false
         ],

@@ -66,7 +66,7 @@ echo Highcharts::widget([
             'plotBorderWidth' => null,
             'plotShadow' => false,
         ],
-        'title' => ['text' => 'อัตตราส่วนตำแหน่งแบ่งตามประเภท'],
+        'title' => ['text' => 'แบ่งตามประเภทบุคลากร'],
         'tooltip' => [
             'pointFormat' => '{series.name}: <b>{point.y}</b>'
         ],

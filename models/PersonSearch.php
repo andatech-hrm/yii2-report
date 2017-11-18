@@ -76,13 +76,20 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
             // $query->where('0=1');
             return $dataProvider;
         }
-        
-        if($this->person_type_id || $this->section_id ||$this->position_type_id){
+        echo $this->position_type_id;
+        if($this->person_type_id || $this->section_id || $this->position_type_id){
              $query->joinWith(['positionSalary.position']);
              $query->andFilterWhere(['position.person_type_id'=>$this->person_type_id]);
              $query->andFilterWhere(['position.section_id'=>$this->section_id]);
-             $query->andFilterWhere(['position.position_type_id'=>$this->position_type_id]);
+             //if($this->position_type_id==="0"){
+             $query->andFilterWhere('position.position_type_id IS NULL');
+             //}else{
+             //$query->andFilterWhere(['position.position_type_id'=>$this->position_type_id]);
+             //}
         }
+        
+        $query->joinWith(['positionSalary.position']);
+        $query->andWhere('position.position_type_id IS NULL');
         
         if($this->start_age || $this->end_age){
              $query->andFilterWhere([">=","timestampdiff(YEAR,birthday,NOW())",$this->start_age]);
