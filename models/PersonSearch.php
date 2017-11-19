@@ -90,12 +90,6 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
         }
         
         
-        
-        
-        
-        $query->joinWith(['positionSalary.position']);
-        $query->andWhere('position.position_type_id IS NULL');
-        
         if($this->start_age || $this->end_age){
              $query->andFilterWhere([">=","timestampdiff(YEAR,birthday,NOW())",$this->start_age]);
              $query->andFilterWhere(["<=","timestampdiff(YEAR,birthday,NOW())",$this->end_age]);
