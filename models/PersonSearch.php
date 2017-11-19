@@ -25,8 +25,8 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
     public $level_id;
     
     
-    const NO_SELECT_POSITION_TYPE = '0';
-    const NO_SELECT_POSITION = '00';
+    const NO_SELECT_POSITION = '-1';
+    const NO_SELECT_POSITION_TYPE = '-2';
     /**
      * @inheritdoc
      */
