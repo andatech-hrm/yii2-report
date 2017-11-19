@@ -81,8 +81,12 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
         }
         //echo $this->position_type_id;
         
-        if(isset($this->position_type_id) && $this->position_type_id==self::NO_SELECT_POSITION){
-            echo "3";
+        if(isset($this->position_type_id) && 
+        $this->position_type_id==self::NO_SELECT_POSITION 
+        || $this->section_id==self::NO_SELECT_POSITION 
+        || $this->person_type_id==self::NO_SELECT_POSITION 
+        ){
+            //echo "3";
             $query->andWhere('position_id IS NULL');
         }elseif(isset($this->position_type_id) && $this->position_type_id==self::NO_SELECT_POSITION_TYPE){
             //echo "2";

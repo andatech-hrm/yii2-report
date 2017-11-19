@@ -48,8 +48,10 @@ class PersonController extends Controller
         if($get=Yii::$app->request->get('PersonSearch')){
             if(isset($get['person_type_id'])){
                 $personType = PersonType::findOne($get['person_type_id']);
+                if($get['person_type_id']!=PersonSearch::NO_SELECT_POSITION){
                 $header[] = 'แบ่งตามประเภทบุคคล ' 
                 .$personType->title;
+                }
             }
             if(isset($get['year'])){
                 $header[] = 'ประจำปี '
@@ -77,83 +79,97 @@ class PersonController extends Controller
         
         $models['year-search'] = new YearSearch();
         $models['year-search']->load(Yii::$app->request->get());
-        
-        $user = PersonPositionSalary::find()
-            ->select(['user_id'])
-            //->where('position_id = position.id')
-            ->groupBy(['user_id']);
-        
-        
-        // $person = PersonPositionSalary::find()
-        //     ->select(['count(*) as count'])
-        //     ->joinWith('position')
-        //     ->where('position.person_type_id = person_type.id')
-        //     //->andWhere(['user_id'=>$user])
-        //     ->groupBy(['user_id'])
-        //     ->groupBy(['position.person_type_id']);
-        
-        $position = Position::find()
-            ->select(['count(*)'])
-            ->joinWith('personPositionSalaries')
-            ->where('position.person_type_id = person_type.id')
-            ->andWhere(['user_id'=>$user]);
-            //->groupBy(['person_type_id']);
+       
             
-        $person = Person::find()
-            ->select('count(distinct(person.user_id))')
+        $modelPerson = Person::find()
+            //->select('count(distinct(person.user_id))')
             //->distinct('person.user_id')
-            ->joinWith('positionSalary.position')
-            ->where('position.person_type_id = person_type.id');
+            ->joinWith('positionSalary.position');
+            //->where('position.person_type_id = person_type.id');
         if($models['year-search']->year !== null && !empty($models['year-search']->year)){
-                $y = intval($models['year-search']->year);
-                $dateBetween = FiscalYear::getDateBetween($y);
-                
-                $person->andWhere(['>=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_start])
-                ->andWhere(['<=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_end]);
-            }    
+            $y = intval($models['year-search']->year);
+            $dateBetween = FiscalYear::getDateBetween($y);
+            
+            $modelPerson->andWhere(['>=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_start])
+            ->andWhere(['<=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_end]);
+        } 
+        
+        $modelPerson = $modelPerson
+        ->orderBy(['position.person_type_id'=>SORT_ASC])
+        ->all();
             
             
             
         
-        $query = PersonType::find();
-        $query->select(['person_type.*','count'=>$person]);
+        $modelPersonType = PersonType::find();
+        //$query->select(['person_type.*','count'=>$person]);
         //$query->leftJoin('position', 'position.person_type_id = person_type.id')
           //      ->leftJoin('person_position_salary', 'person_position_salary.position_id = position.id');
         
-        $query->andWhere(['!=', 'parent_id', '0']);
+        $modelPersonType->andWhere(['!=', 'parent_id', '0']);
                 
         //$query->groupBy(['position.person_type_id']);
-                
-        $modelPersonType = $query->all();
-        /*
-        $person = PersonPositionSalary::find()->joinWith('position')->groupBy(['position.person_type_id'])->select(['position.person_type_id','count(user_id) as count'])->all();
+        $modelPersonType = $modelPersonType
+        ->orderBy(['id'=>SORT_ASC])
+        ->all();
         
         
-        $arr = ArrayHelper::index($person,'person_type_id');
+        $newModel = new PersonType();
+        $newModel->id = PersonSearch::NO_SELECT_POSITION;
+        $newModel->title = 'อื่นๆ - ไม่ได้ระบุตำแหน่ง';
         
-        foreach( $models as $model ){
-            $model->count = isset($arr[$model->id])&&$arr[$model->id]?$arr[$model->id]->count:0;
+        $modelPersonType[] = $newModel;
+        
+        $newModelPersonType = [];
+        foreach($modelPersonType as $personType){
+            $personType->count_person = 0;
+            $newModelPersonType[$personType->id] = $personType;
         }
-        */
+        $modelPersonType=$newModelPersonType;
         
-        // echo "<pre>";
-        // print_r($models);
-        // print_r($arr);
+        // print_r($modelPersonType);
         // exit();
         
-        $dataProvider = new ActiveDataProvider([
-        'query' => $query,
+        $keys = array_keys($modelPersonType);
+//echo $array[$keys[0]];
+        
+        
+        $oldPersonTypeId = $modelPersonType[$keys[0]]->id;
+        $newCount = 0;
+        foreach($modelPerson as $person){
+            if(isset($person->position->person_type_id) && $oldPersonTypeId != $person->position->person_type_id){
+                $oldPersonTypeId = $person->position->person_type_id;
+                $newCount=0;
+            }
+            // echo $oldPositionTypeId;
+            // exit();
+            if(isset($person->position->person_type_id) && $oldPersonTypeId == $person->position->person_type_id){
+                $newCount++;
+                $modelPersonType[$oldPersonTypeId]->count_person = $newCount;
+            }elseif(empty($person->position)){
+                //echo $oldPositionTypeId;
+                $modelPersonType[PersonSearch::NO_SELECT_POSITION]->count_person = ++$modelPersonType[PersonSearch::NO_SELECT_POSITION]->count_person;
+            }
+            
+        }
+        
+       $dataProvider = new ArrayDataProvider([
+            'allModels'=>$modelPersonType,
         'pagination' => false,
         'sort' => [
             'defaultOrder' => [
-                'parent_id' => SORT_ASC,
-                'sort'=>SORT_ASC,
+                //'parent_id' => SORT_ASC,
+                //'sort'=>SORT_ASC,
             ]
         ],
     ]);
         
         
-        return $this->render('type', ['model' => $modelPersonType ,'dataProvider'=>$dataProvider,'models'=>$models]);
+        return $this->render('type', [
+            'model' => $modelPersonType ,
+            'dataProvider'=>$dataProvider,
+            'models'=>$models
+        ]);
     }
     
     
@@ -213,123 +229,7 @@ class PersonController extends Controller
         return $this->render('gender', ['model' => $modelPersonType,'models' => $models,'dataProvider'=>$dataProvider,]);
     }
     
-    public function actionGender1(){
-        $models['person-type'] = PersonType::find()->all();
-        $models['year-search'] = new YearSearch();
-        $models['year-search']->load(Yii::$app->request->get());
-        
-        foreach ($models['person-type'] as $key => $personType) :
-            $query = Contract::find()
-            ->select("
-            person.firstname_th, 
-            SUM(CASE WHEN person.gender = 'm' THEN 1 ELSE 0 END) as genderMaleCount,
-            SUM(CASE WHEN person.gender = 'f' THEN 1 ELSE 0 END) as genderFemaleCount,
-            ")
-            ->joinWith('position')
-            ->joinWith('user')
-            ->where(['position.person_type_id' => $personType->id]);
-            
-            if($models['year-search']->year !== null && !empty($models['year-search']->year)){
-                $y = intval($models['year-search']->year);
-                $dateBetween = \andahrm\structure\models\FiscalYear::getDateBetween($y);
-                
-                $query->andWhere(['<=', 'DATE(person_contract.start_date)', $dateBetween->date_end])
-                ->andWhere(['>=', 'DATE(person_contract.end_date)', $dateBetween->date_start]);
-                
-            }
-            $models['person-position-salary'][$key] = $query
-            ->one();
-        endforeach;
-
-        return $this->render('gender', ['models' => $models]);
-    }
-    
-    public function actionGender_mad()
-    {
-        
-        $model= new PersonType(['scenario'=>'report']);
-        
-        
-        if($model->load(Yii::$app->request->get())){
-
-        }
-        
-        $modelType = PersonType::find()->all();
-                //$modelType->scenario = 'report';
-                //$modelType = ArrayHelper::index($modelType,'id');
-                
-                $modelGender = Person::find()->select('gender')->distinct()->groupBy('gender')->orderBy('gender')->all();
-                $modelGender = ArrayHelper::map($modelGender,'gender','genderText');
-                $newGender = [];
-                foreach($modelType as $type){
-                    
-                    foreach($modelGender as $kg => $vg){
-                        $countGender = PersonPositionSalary::find()
-                                ->joinWith('position')
-                                ->joinWith('user')
-                                ->where(['position.person_type_id'=>$type->id])
-                                ->andWhere(['person.gender'=>$kg])
-                        // ->groupBy('person.gender')
-                        // ->orderBy('person.gender')
-                        ->count();
-                        $newGender[$kg]['title'] = $modelGender[$kg];
-                        $newGender[$kg]['count'] = $countGender;
-                        $type->gender = $newGender;
-                    }
-                }
-                
-                 //echo "<pre>";
-                 //print_r($modelGender);
-                //\Yii::$app->end();
-                //$models['person'] = \andahrm\person\models\Person::find()->all();
-                //$models['person'] = \andahrm\person\models\Person::find()->all();
-                
-                
-                
-        
-        
-        return $this->render('gender_mad', [
-            'model'=>$model,
-            'models' => $modelType,
-            'modelGender'=>$newGender
-        ]);
-    }
-    
-    /////////////////
-    public function actionGender2()
-    {
-        $models['person-type'] = PersonType::find()->all();
-        $models['year-search'] = new YearSearch();
-        $models['year-search']->load(Yii::$app->request->get());
-        
-        foreach ($models['person-type'] as $key => $personType) :
-            $query = Contract::find()
-            ->select("
-            person.firstname_th, 
-            SUM(CASE WHEN person.gender = 'm' THEN 1 ELSE 0 END) as genderMaleCount,
-            SUM(CASE WHEN person.gender = 'f' THEN 1 ELSE 0 END) as genderFemaleCount,
-            ")
-            ->joinWith('position')
-            ->joinWith('user')
-            ->where(['position.person_type_id' => $personType->id]);
-            
-            if($models['year-search']->year !== null && !empty($models['year-search']->year)){
-                $y = intval($models['year-search']->year);
-                $dateBetween = \andahrm\structure\models\FiscalYear::getDateBetween($y);
-                
-                $query->andWhere(['<=', 'DATE(person_contract.start_date)', $dateBetween->date_end])
-                ->andWhere(['>=', 'DATE(person_contract.end_date)', $dateBetween->date_start]);
-                
-            }
-            $models['person-position-salary'][$key] = $query
-            ->one();
-        endforeach;
-        return $this->render('gender2', ['models' => $models]);
-    }
-    //////////////////
-    
-    public function actionLevel()
-    {
+    public function actionLevel(){
         $models['person-level'] = \andahrm\structure\models\PositionLevel::find()->all();
         foreach($models['person-level'] as $key => $level) {
             $query = PersonPositionSalary::find()
@@ -406,66 +306,6 @@ class PersonController extends Controller
             ]);
     }
     
-    // public function actionDegree(){
-        
-    //     $modelUser = Education::find()
-    //         //->limit(1)
-    //         ->groupBy('user_id')
-    //         ->orderBy(['degree'=>SORT_ASC, 'year_end'=>SORT_ASC])
-    //         ->all();
-        
-    //     $modelDegree = Education::find()
-    //     //->where(['=', "user_id",$find ])
-    //     //->distinct('degree')
-    //     //->from('person_education as ss')
-    //     //->select(['degree'])
-    //     ->orderBy('degree')
-    //     //->addSelect(['count_person'=>$find])
-    //     ->groupBy('degree');
-    //     //->asArray();
-    //     //echo $modelDegree->createCommand()->getRawSql();
-    //     $modelDegree = $modelDegree->all();
-        
-    //     $modelDegrees = [];
-    //     $f_degree = $modelDegree[0]->degree;
-    //     $count =0;
-    //     foreach($modelDegree as $degree){
-            
-    //         if($f_degree != $degree->degree){
-    //             $f_degree = $degree->degree;
-    //             $count = 0;
-    //         }
-            
-    //         foreach($modelUser as $user){
-    //             if($user->degree == $degree->degree)
-    //             $count++;
-    //         }
-    //         if($count){
-    //             $degree->count_person = $count;
-    //             $modelDegrees[] = $degree;
-    //         }
-    //     }
-        
-    //     ArrayHelper::multisort($modelDegrees, ['count_person'], [SORT_DESC]);
-        
-    //     //$modelDegrees = Education::find()->select(['degree','count_person'=>'count(user_id)'])->groupBy('degree')->all();
-        
-    //     // echo "<pre>";
-    //     // print_r($modelDegrees);
-    //     // exit();
-        
-    //     $dataProvider = new ArrayDataProvider([
-    //         'allModels'=>$modelDegrees,
-    //         'pagination'=>false,
-    //         ]);
-        
-    //     return $this->render('degree',[
-    //         'modelDegree'=>$modelDegrees,
-    //         'dataProvider'=>$dataProvider
-    //         ]);
-    // }
-    
-    
     public function actionDegree(){
         
         $modelUser = Education::find()
@@ -529,7 +369,6 @@ class PersonController extends Controller
             ]);
     }
     
-     
     public function actionPositionType(){
         
        
@@ -612,7 +451,6 @@ class PersonController extends Controller
             ]);
     }
     
-    
     public function actionSection(){
         
         $modelPerson = PersonPositionSalary::find()
@@ -621,21 +459,52 @@ class PersonController extends Controller
             ->where('position.section_id = ssss.id');
             //->groupBy('position.section_id');
         
+        $modelPerson = Person::find()
+        ->joinWith('position')
+        ->orderBy(['position.section_id'=>SORT_ASC])
+        ->all();
+        
+        
         $modelSection= Section::find()
-        //->where(['=', "user_id",$find ])
-        //->distinct('degree')
-        ->from('section as ssss')
-        ->select(['*','count_person'=>$modelPerson]);
-        //->asArray();
-        //echo $modelDegree->createCommand()->getRawSql();
+        ->orderBy(['id'=>SORT_ASC]);
         $modelSection = $modelSection->all();
         
+        $newModel = new Section();
+        $newModel->id = PersonSearch::NO_SELECT_POSITION;
+        $newModel->title = 'อื่นๆ - ไม่ได้ระบุตำแหน่ง';
         
-        //$modelDegrees = Education::find()->select(['degree','count_person'=>'count(user_id)'])->groupBy('degree')->all();
+        $modelSection[] = $newModel;
         
-        // echo "<pre>";
-        // print_r($modelDegrees);
+        $newModelSection = [];
+        foreach($modelSection as $section){
+            $section->count_person = 0;
+            $newModelSection[$section->id] = $section;
+        }
+        $modelSection=$newModelSection;
+        
+        // print_r($modelSection);
         // exit();
+        
+        
+        $oldSectionId = $modelSection[1]->id;
+        $newCount = 0;
+        foreach($modelPerson as $person){
+            if(isset($person->position->section_id) && $oldSectionId != $person->position->section_id){
+                $oldSectionId = $person->position->section_id;
+                $newCount=0;
+            }
+            // echo $oldPositionTypeId;
+            // exit();
+            if(isset($person->position->section_id) && $oldSectionId == $person->position->section_id){
+                $newCount++;
+                $modelSection[$oldSectionId]->count_person = $newCount;
+            }elseif(empty($person->position)){
+                //echo $oldPositionTypeId;
+                $modelSection[PersonSearch::NO_SELECT_POSITION]->count_person = ++$modelSection[PersonSearch::NO_SELECT_POSITION]->count_person;
+            }
+            
+        }
+        
         
         $dataProvider = new ArrayDataProvider([
             'allModels'=>$modelSection,

@@ -16,7 +16,7 @@ $data = [];
 $selected = false;
 foreach ($model as $type) {
     //$arr = ['name' => $type->title, 'y' => count($type->positions)];
-    $arr = ['name' => $type->title, 'y' => $type->count*1];
+    $arr = ['name' => $type->title, 'y' => $type->count_person*1];
     $data[] = $arr;
 }
 
@@ -113,22 +113,18 @@ $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\
             ],
             [
                 
-                'label'=>Yii::t('andahrm/report','Person Amount'),
-                'format'=>'html',
-                 'content'=>function($model){
+               'attribute'=>'count_person',
+                'content'=>function($model){
                      
-                     $count = $model->count?$model->count:0;
+                     //$count = $model->count_person?$model->count:0;
                      $where['person_type_id'] = $model->id;
                      if($get = Yii::$app->request->queryParams){
                         $where['year'] = $get['YearSearch']['year'];
                      }
-                     //$where['person_type_id2'] = $model->id;
                      
-                     return Html::a($count,['/report/person','PersonSearch'=>$where]);
+                     return Html::a($model->count_person,['/report/person','PersonSearch'=>$where]);
                  },
-                 'value'=>function($model){
-                      return $model->count?$model->count:0;
-                 },
+                 
                  'pageSummary'=>true,
             ],
         ],
