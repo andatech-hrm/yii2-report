@@ -89,6 +89,7 @@ echo Highcharts::widget([
         'series' => [
             ['name' => Yii::t('andahrm/report', 'Male'), 'data' => ArrayHelper::getColumn($arr, 'male'), 'color' => '#368BC1'],
             ['name' => Yii::t('andahrm/report', 'Female'), 'data' => ArrayHelper::getColumn($arr, 'female'), 'color' => '#F660AB'],
+            ['name' => Yii::t('andahrm/report', 'No Gender'), 'data' => ArrayHelper::getColumn($arr, 'no-gender'), 'color' => '#F6FFAB'],
         ]
     ]
 ]);
