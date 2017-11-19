@@ -36,7 +36,7 @@ echo Highcharts::widget([
             'plotBorderWidth' => null,
             'plotShadow' => false,
         ],
-        'title' => ['text' => 'แบ่งตามช่วงอายุ'],
+        'title' => ['text' => 'ร้อยละบุคลากรแบ่งตามช่วงอายุ'],
         'tooltip' => [
             'pointFormat' => '{series.name}: <b>{point.y}</b>'
         ],
@@ -72,7 +72,7 @@ $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\
         ['class' => 'kartik\grid\SerialColumn'],
         [
             'attribute'=>'title',
-            'label'=>'ร้อยละบุคลากรแบ่งตามช่วงอายุ',
+            'label'=>'ช่วงอายุ',
             'pageSummary'=>Yii::t('andahrm','Total'),
             
         ],
