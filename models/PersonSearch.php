@@ -24,6 +24,9 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
     #edu
     public $level_id;
     
+    
+    const NO_SELECT_POSITION_TYPE = '0';
+    const NO_SELECT_POSITION = '00';
     /**
      * @inheritdoc
      */
@@ -78,12 +81,13 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
         }
         //echo $this->position_type_id;
         
-        if(isset($this->position_type_id) && $this->position_type_id=="0"){
+        if(isset($this->position_type_id) && $this->position_type_id==self::NO_SELECT_POSITION){
+            echo "3";
+            $query->andWhere('position_id IS NULL');
+        }elseif(isset($this->position_type_id) && $this->position_type_id==self::NO_SELECT_POSITION_TYPE){
             //echo "2";
-            $query->joinWith(['position']);
+            $query->joinWith(['position'],true,"INNER JOIN");
             $query->andWhere('position.position_type_id IS NULL');
-            //$query->orWhere('position_id IS NULL');
-            //$query->orWhere('position.position_type_id ="" ');
         }elseif(isset($this->person_type_id) || isset($this->section_id) || isset($this->position_type_id)){
             //echo "1";
             $query->joinWith(['position'],true,"INNER JOIN");

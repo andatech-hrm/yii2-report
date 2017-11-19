@@ -73,6 +73,10 @@ $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\
         [
             'attribute'=>'person_type_id',
             'value'=>'personType.title',
+            'value'=>function($model){
+                $strCheck = 'อื่นๆ';
+                return $model->person_type_id!=0?$model->personType->title:$strCheck;
+            },
             'group'=>true,
         ],
         [

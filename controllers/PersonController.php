@@ -551,9 +551,17 @@ class PersonController extends Controller
         // exit();
         
         $newModel = new PositionType();
-        $newModel->id = "0";
-        $newModel->title = "อื่นๆ";
+        $newModel->id = PersonSearch::NO_SELECT_POSITION_TYPE;
+        $newModel->title = "ไม่ได้เลือกประเภทตำแหน่ง";
         $newModel->count_person = 0;
+        $newModel->person_type_id = 0;
+        $modelPositionType[] = $newModel;
+        
+        $newModel = new PositionType();
+        $newModel->id = PersonSearch::NO_SELECT_POSITION;
+        $newModel->title = "ไม่ได้เลือกตำแหน่ง";
+        $newModel->count_person = 0;
+        $newModel->person_type_id = 0;
         $modelPositionType[] = $newModel;
         
         $newModelPositionType = [];
@@ -581,9 +589,12 @@ class PersonController extends Controller
             if(isset($person->position->position_type_id) && $oldPositionTypeId == $person->position->position_type_id){
                 $newCount++;
                 $modelPositionType[$oldPositionTypeId]->count_person = $newCount;
-            }elseif(empty($person->position) || empty($person->position->position_type_id)){
+            }elseif(!empty($person->position) && empty($person->position->position_type_id)){
                 //echo $oldPositionTypeId;
-                $modelPositionType['0']->count_person = ++$modelPositionType['0']->count_person;
+                $modelPositionType[PersonSearch::NO_SELECT_POSITION_TYPE]->count_person = ++$modelPositionType[PersonSearch::NO_SELECT_POSITION_TYPE]->count_person;
+            }elseif(empty($person->position)){
+                //echo $oldPositionTypeId;
+                $modelPositionType[PersonSearch::NO_SELECT_POSITION]->count_person = ++$modelPositionType[PersonSearch::NO_SELECT_POSITION]->count_person;
             }
         }
         // echo "<pre>";
