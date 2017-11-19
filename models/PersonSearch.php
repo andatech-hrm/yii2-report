@@ -130,6 +130,12 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
                 ->andFilterWhere(['>=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_start]);
         }
         
+        if($this->gender == self::NO_GENDER){
+             $query->andWhere('gender IS NULL');
+        }else{
+            $query->andFilterWhere(['like', 'gender', $this->gender]);
+        }
+        
 
         // grid filtering conditions
         $query->andFilterWhere([
@@ -147,7 +153,7 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
             ->andFilterWhere(['like', 'lastname_th', $this->lastname_th])
             ->andFilterWhere(['like', 'firstname_en', $this->firstname_en])
             ->andFilterWhere(['like', 'lastname_en', $this->lastname_en])
-            ->andFilterWhere(['like', 'gender', $this->gender])
+            
             ->andFilterWhere(['like', 'tel', $this->tel])
             ->andFilterWhere(['like', 'phone', $this->phone]);
         

@@ -248,6 +248,8 @@ class PersonController extends Controller
         $modelGender = ArrayHelper::index($modelGender, 'gender');
         $modelGender[PersonSearch::NO_GENDER]['gender']= 'ไม่ได้ระบุเพศ';
         
+        // print_r($modelGender);
+        // exit();
         // $newModelGender = [];
         // foreach($modelGender as $gender){
         //     $personType->count_person = 0;
@@ -258,6 +260,7 @@ class PersonController extends Controller
         
                     
         $modelPerson = Person::find()
+            ->select(['position.person_type_id','person.gender','person.user_id','citizen_id'])
             ->joinWith('positionSalary.position');
         if($models['year-search']->year !== null && !empty($models['year-search']->year)){
             $y = intval($models['year-search']->year);
@@ -269,9 +272,14 @@ class PersonController extends Controller
         
         $modelPerson = $modelPerson
         ->orderBy(['position.person_type_id'=>SORT_ASC,'gender'=>SORT_DESC])
+        ->asArray()
         ->all();
-        //$modelPerson = ArrayHelper::
-        
+        $modelPerson = ArrayHelper::index($modelPerson, null, [function ($element) {
+                        return $element['person_type_id'];
+                    },'gender']);
+        // echo "<pre>";
+        // print_r($modelPerson);
+        // exit();
         
         $keys = array_keys($modelGender);
         $oldGender = $keys[0];
@@ -281,60 +289,37 @@ class PersonController extends Controller
         $newCount = 0;
                 $mCount=0;
                 $fCount=0;
-        foreach($modelPerson as $person){
+        foreach($modelPerson as $key => $personType){
             
-            if(isset($person->position->person_type_id) && $oldPersonTypeId != $person->position->person_type_id){
-                $oldPersonTypeId = $person->position->person_type_id;
-                $newCount=0;
-                $mCount=0;
-                $fCount=0;
+            // echo "<pre>";
+            // print_r(array_keys($personType));
+            // print_r($personType);
+            // exit();
+            
+            if($key){
+                $modelPersonType[$key]->genderMaleCount = isset($personType['m'])?count($personType['m']):0 ;
+                $modelPersonType[$key]->genderFemaleCount = isset($personType['f'])?count($personType['f']):0 ;
+                $modelPersonType[$key]->noGenderCount = isset($personType[''])?count($personType['']):0;
+            }elseif($key == 0){
+                $modelPersonType[PersonSearch::NO_SELECT_POSITION]->genderMaleCount = isset($personType['m'])?count($personType['m']):0 ;
+                $modelPersonType[PersonSearch::NO_SELECT_POSITION]->genderFemaleCount = isset($personType['f'])?count($personType['f']):0 ;
+                
+                $modelPersonType[PersonSearch::NO_SELECT_POSITION]->noGenderCount = isset($personType[''])?count($personType['']):0;
             }
-            
-            if(isset($person->position->person_type_id) && $oldPersonTypeId == $person->position->person_type_id){
+                 
                 
-                foreach($modelGender as $k_gen => $gender){
-                     if($person->gender!=null && $person->gender  != $oldGender){
-                        $oldGender = $person->gender;
-                        $newCount=0;
-                        $mCount=0;
-                        $fCount=0;
-                    }
+            // }elseif($key == 0){
                 
-                    if($person->gender!=null && $person->gender == $oldGender){
-                        if($oldGender == 'm'){
-                            $mCount++;
-                            $modelPersonType[$oldPersonTypeId]->genderMaleCount = $mCount ;
-                        }elseif($oldGender == 'f'){
-                            $fCount++;
-                            $modelPersonType[$oldPersonTypeId]->genderFemaleCount = $fCount ;
-                        }
-                    }elseif($person->gender==null){
-                        //echo $oldPositionTypeId;
-                        $modelPersonType[$oldPersonTypeId]->noGenderCount += 1;
-                    }
-                }
-            }elseif(empty($person->position)){
-                foreach($modelGender as $k_gen => $gender){
-                     if($person->gender!=null && $person->gender  != $oldGender){
-                        $oldGender = $person->gender;
-                        $newCount=0;
-                    }
-                
-                    if($person->gender == $oldGender){
-                            
-                        if($oldGender == 'm'){
+                    
     
-                            $modelPersonType[PersonSearch::NO_SELECT_POSITION]->genderMaleCount += 1;
-                        }elseif($oldGender == 'f'){
-                            
-                            $modelPersonType[PersonSearch::NO_SELECT_POSITION]->genderFemaleCount += 1;
-                        }
-                    }elseif($person->gender==null){
-                        //echo $oldPositionTypeId;
-                        $modelPersonType[PersonSearch::NO_SELECT_POSITION]->noGenderCount += 1;
-                    }
-                }
-            }
+            //         $modelPersonType[PersonSearch::NO_SELECT_POSITION]->genderMaleCount  = count($person['m']) ;
+                      
+            //             $modelPersonType[PersonSearch::NO_SELECT_POSITION]->genderFemaleCount =  count($person['f']) ;
+                    
+            //         $modelPersonType[PersonSearch::NO_SELECT_POSITION]->noGenderCount += 1;
+                    
+                
+            // }
             
         }
         

@@ -161,7 +161,7 @@ $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\
                 'content' => function($model){
                     $count = $model->noGenderCount?$model->noGenderCount:0;
                      $where['person_type_id'] = $model->id;
-                     $where['gender'] = 'no-gender';
+                     $where['gender'] = '-1';
                      //$where['year'] = date('Y');
                      if($get = Yii::$app->request->queryParams){
                         $where['year'] = $get['YearSearch']['year'];
@@ -181,7 +181,8 @@ $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\
                 'value'=>function($model){
                      $count = $model->genderMaleCount?$model->genderMaleCount:0;
                      $count1 = $model->genderFemaleCount?$model->genderFemaleCount:0;
-                     return $count+$count1;
+                     $count2 = $model->noGenderCount?$model->noGenderCount:0;
+                     return $count+$count1+$count2;
                  },
                 'pageSummary'=>true,
             ]
