@@ -84,7 +84,7 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
         if($this->person_type_id || $this->section_id || $this->position_type_id){
             $query->andFilterWhere(['position.person_type_id'=>$this->person_type_id]);
             $query->andFilterWhere(['position.section_id'=>$this->section_id]);
-            if($this->position_type_id==="0"){
+            if($this->position_type_id=="0"){
                 $query->andWhere('position.position_type_id IS NULL');
             }
         }
