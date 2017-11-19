@@ -36,7 +36,7 @@ echo Highcharts::widget([
             'plotBorderWidth' => null,
             'plotShadow' => false,
         ],
-        'title' => ['text' => 'ร้อยละบุคลากรแบ่งตามประเภทตำแหน่ง'],
+        'title' => ['text' => 'ร้อยละของบุคลากรแบ่งตามประเภทตำแหน่ง'],
         'tooltip' => [
             'pointFormat' => '{series.name}: <b>{point.y}</b>'
         ],
