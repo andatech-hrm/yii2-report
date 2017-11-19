@@ -77,17 +77,23 @@ $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\
         ],
         [
             'attribute'=>'title',
+            'value'=>function($model){
+                $strCheck = 'อัตราเงินเดือน';
+                return $model->title!=$strCheck?$model->title:$model->personType->title;
+            },
             'pageSummary'=>Yii::t('andahrm','Total'),
             
         ],
         [
             //'attribute'=>''
             'attribute'=>'count_person',
+            //'contentOptions'=>['class'=>'text-right'],
             'content'=>function($model){
                      $where['position_type_id'] = $model->id;
                      return Html::a($model->count_person,['/report/person','PersonSearch'=>$where]);
                  },
             'pageSummary'=>true,
+            //'pageSummaryOptions'=>['class'=>'text-right'],
         ]
         ]
     ]);

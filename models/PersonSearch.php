@@ -77,16 +77,19 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
             return $dataProvider;
         }
         //echo $this->position_type_id;
-        if($this->person_type_id || $this->section_id || $this->position_type_id){
-             $query->joinWith(['positionSalary.position']);
-        }
-        
-        if($this->person_type_id || $this->section_id || $this->position_type_id){
+        if($this->person_type_id || $this->section_id || $this->position_type_id!="0"){
+            $query->joinWith(['position'],true,"INNER JOIN");
             $query->andFilterWhere(['position.person_type_id'=>$this->person_type_id]);
             $query->andFilterWhere(['position.section_id'=>$this->section_id]);
-            if($this->position_type_id=="0"){
-                $query->andWhere('position.position_type_id IS NULL');
-            }
+            $query->andFilterWhere(['position.position_type_id'=>$this->position_type_id]);
+            
+        }
+        
+        if(isset($this->position_type_id) && $this->position_type_id=="0"){
+            $query->joinWith(['position']);
+            $query->andWhere('position.position_type_id IS NULL');
+            //$query->orWhere('position_id IS NULL');
+            //$query->orWhere('position.position_type_id ="" ');
         }
         
         

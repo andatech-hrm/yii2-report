@@ -532,60 +532,34 @@ class PersonController extends Controller
      
     public function actionPositionType(){
         
-       
+        $modelPerson = PersonPositionSalary::find()
+            ->select('count(distinct(user_id))')
+            ->joinWith('position')
+            ->where('position.position_type_id = ssss.id');
+            //->groupBy('position.section_id');
         
         $modelPositionType= PositionType::find()
-        //->from('position_type as ssss')
+        ->from('position_type as ssss')
         //->where(['!=', "title",'อัตราเงินเดือน' ])
-        //->select(['*','count_person'=>$modelPerson])
+        ->select(['*','count_person'=>$modelPerson])
         ->orderBy(['person_type_id'=>SORT_ASC,'id'=>SORT_ASC])
         ->all();
         
-        $modelPerson = Person::find()
-        ->joinWith('position')
-        //->joinWith('position',true,"INNER JOIN")
-        ->orderBy(['position.position_type_id'=>SORT_ASC])
-        ->all();
-        // echo "<pre>";
-        // print_r($modelPerson);
-        // exit();
+        $modelNotSet = PersonPositionSalary::find()
+            //->select('distinct(user_id)')
+            ->joinWith('position')
+            ->where('position.position_type_id IS NULL')
+            //->groupBy('user_id')
+            ->count();
         
         $newModel = new PositionType();
         $newModel->id = "0";
         $newModel->title = "อื่นๆ";
-        $newModel->count_person = 0;
+        $newModel->count_person = $modelNotSet;
         $modelPositionType[] = $newModel;
         
-        $newModelPositionType = [];
-        foreach($modelPositionType as $positionType){
-            $positionType->count_person = 0;
-            $newModelPositionType[$positionType->id] = $positionType;
-        }
-        $modelPositionType=$newModelPositionType;
-        // echo "<pre>";
-        // print_r($modelPositionType);
-        // exit();
+        //$modelDegrees = Education::find()->select(['degree','count_person'=>'count(user_id)'])->groupBy('degree')->all();
         
-        $oldPositionTypeId = $modelPositionType[1]->id;
-        // echo $modelPerson[0]['position']['position_type_id'];
-        // exit();
-        $newModelPositionType = [];
-        $newCount = 0;
-        foreach($modelPerson as $person){
-            if(isset($person->position->position_type_id) && $oldPositionTypeId != $person->position->position_type_id){
-                $oldPositionTypeId = $person->position->position_type_id;
-                $newCount=0;
-            }
-            // echo $oldPositionTypeId;
-            // exit();
-            if(isset($person->position->position_type_id) && $oldPositionTypeId == $person->position->position_type_id){
-                $newCount++;
-                $modelPositionType[$oldPositionTypeId]->count_person = $newCount;
-            }elseif(empty($person->position) || empty($person->position->position_type_id)){
-                //echo $oldPositionTypeId;
-                $modelPositionType['0']->count_person = ++$modelPositionType['0']->count_person;
-            }
-        }
         // echo "<pre>";
         // print_r($modelDegrees);
         // exit();
