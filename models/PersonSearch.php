@@ -25,6 +25,8 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
     public $level_id;
     
     
+    const NO_GENDER = '-1';
+    const NO_BIRTHDAY = '-1';
     const NO_SELECT_POSITION = '-1';
     const NO_SELECT_POSITION_TYPE = '-2';
     /**
@@ -104,7 +106,9 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
         
         
         
-        if($this->start_age || $this->end_age){
+        if($this->start_age==0 && $this->end_age == 0){
+             $query->andWhere('birthday IS NULL');
+        }elseif($this->start_age || $this->end_age){
              $query->andFilterWhere([">=","timestampdiff(YEAR,birthday,NOW())",$this->start_age]);
              $query->andFilterWhere(["<=","timestampdiff(YEAR,birthday,NOW())",$this->end_age]);
         }

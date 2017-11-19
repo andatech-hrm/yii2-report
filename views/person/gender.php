@@ -20,6 +20,7 @@ foreach ($model as $key => $personType) :
         'title' => $personType->title,
         'male' => $personType->genderMaleCount?intval($personType->genderMaleCount):0,
         'female' => $personType->genderFemaleCount?intval($personType->genderFemaleCount):0,
+        'no-gender' => $personType->noGenderCount?intval($personType->noGenderCount):0,
         'sum' => $personType->genderMaleCount + $personType->genderFemaleCount,
     ];
 endforeach;
@@ -151,6 +152,27 @@ $this->registerJsFile($directoryAsset.'/modules/exporting.js', ['depends' => ['\
                 },
                 'value'=>function($model){
                       return $model->genderFemaleCount?$model->genderFemaleCount:0;
+                 },
+                 'pageSummary'=>true,
+            ],
+            [
+                'attribute'=>'noGenderCount',
+                'format'=>'html',
+                'content' => function($model){
+                    $count = $model->noGenderCount?$model->noGenderCount:0;
+                     $where['person_type_id'] = $model->id;
+                     $where['gender'] = 'no-gender';
+                     //$where['year'] = date('Y');
+                     if($get = Yii::$app->request->queryParams){
+                        $where['year'] = $get['YearSearch']['year'];
+                     }
+                     //$where['person_type_id2'] = $model->id;
+                     
+                     return Html::a($count,['/report/person','PersonSearch'=>$where]);
+                   
+                },
+                'value'=>function($model){
+                      return $model->noGenderCount?$model->noGenderCount:0;
                  },
                  'pageSummary'=>true,
             ],

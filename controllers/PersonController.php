@@ -34,13 +34,11 @@ class PersonController extends Controller
      * Renders the index view for the module
      * @return string
      */
-     public function actions()
-    {
+    public function actions(){
         $this->layout='person-menu-left';
     }
      
-   public function actionIndex()
-    {
+    public function actionIndex(){
         $searchModel = new PersonSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
         $dataProvider->pagination = false;
@@ -68,14 +66,12 @@ class PersonController extends Controller
         ]);
     }
     
-    public function actionPosition()
-    {
+    public function actionPosition(){
         $model = PersonPosition::find()->all();
         return $this->render('position', ['model' => $model]);
     }
     
-    public function actionType()
-    {
+    public function actionType(){
         
         $models['year-search'] = new YearSearch();
         $models['year-search']->load(Yii::$app->request->get());
@@ -172,8 +168,6 @@ class PersonController extends Controller
         ]);
     }
     
-    
-    
     public function actionGender(){
         //$models['person-type'] = PersonType::find()->all();
         $models['year-search'] = new YearSearch();
@@ -193,6 +187,12 @@ class PersonController extends Controller
             ->where('position.person_type_id = person_type.id')
             ->andWhere(['gender'=>'f']);
         
+        $noGenderCount = Person::find()
+            ->select('count(distinct(person.user_id))')
+            ->joinWith('positionSalary.position')
+            ->where('position.person_type_id = person_type.id')
+            ->andWhere('gender IS NULL');
+        
         if($models['year-search']->year !== null && !empty($models['year-search']->year)){
             $y = intval($models['year-search']->year);
             $dateBetween = FiscalYear::getDateBetween($y);
@@ -209,19 +209,147 @@ class PersonController extends Controller
         $query->select([
             'person_type.*',
             'genderMaleCount'=>$genderMaleCount,
-            'genderFemaleCount'=>$genderFemaleCount
+            'genderFemaleCount'=>$genderFemaleCount,
+            'noGenderCount'=>$noGenderCount
         ]);
         $query->andWhere(['!=', 'parent_id', '0']);
         $modelPersonType = $query->all();
         
+        ######################################################
         
-        $dataProvider = new ActiveDataProvider([
-            'query' => $query,
+        $modelPersonType = PersonType::find()
+                            ->andWhere(['!=', 'parent_id', '0']);
+        $modelPersonType = $modelPersonType
+                            ->orderBy(['id'=>SORT_ASC])
+                            ->all();
+        
+        
+        $newModel = new PersonType();
+        $newModel->id = PersonSearch::NO_SELECT_POSITION;
+        $newModel->title = 'อื่นๆ - ไม่ได้ระบุตำแหน่ง';
+        $modelPersonType[] = $newModel;
+        
+        $modelPersonType = ArrayHelper::index($modelPersonType, 'id');
+        
+        // $newModelPersonType = [];
+        // foreach($modelPersonType as $personType){
+        //     $personType->count_person = 0;
+        //     $newModelPersonType[$personType->id] = $personType;
+        // }
+        // $modelPersonType=$newModelPersonType;
+        
+        
+        $modelGender = Person::find()->groupBy('gender')
+                    ->select(['gender'])
+                    ->orderBy(['gender'=>SORT_DESC])
+                    ->asArray()
+                    ->all();
+        $modelGender[PersonSearch::NO_GENDER]['gender']=PersonSearch::NO_GENDER;
+        $modelGender = ArrayHelper::index($modelGender, 'gender');
+        $modelGender[PersonSearch::NO_GENDER]['gender']= 'ไม่ได้ระบุเพศ';
+        
+        // $newModelGender = [];
+        // foreach($modelGender as $gender){
+        //     $personType->count_person = 0;
+        //     $newModelGender[$personType->id] = $personType;
+        // }
+        // $modelGender=$newModelGender;
+        
+        
+                    
+        $modelPerson = Person::find()
+            ->joinWith('positionSalary.position');
+        if($models['year-search']->year !== null && !empty($models['year-search']->year)){
+            $y = intval($models['year-search']->year);
+            $dateBetween = FiscalYear::getDateBetween($y);
+            
+            $modelPerson->andWhere(['>=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_start])
+            ->andWhere(['<=', 'DATE(person_position_salary.adjust_date)', $dateBetween->date_end]);
+        } 
+        
+        $modelPerson = $modelPerson
+        ->orderBy(['position.person_type_id'=>SORT_ASC,'gender'=>SORT_DESC])
+        ->all();
+        //$modelPerson = ArrayHelper::
+        
+        
+        $keys = array_keys($modelGender);
+        $oldGender = $keys[0];
+       
+        $keys = array_keys($modelPersonType);
+        $oldPersonTypeId = $modelPersonType[$keys[0]]->id;
+        $newCount = 0;
+                $mCount=0;
+                $fCount=0;
+        foreach($modelPerson as $person){
+            
+            if(isset($person->position->person_type_id) && $oldPersonTypeId != $person->position->person_type_id){
+                $oldPersonTypeId = $person->position->person_type_id;
+                $newCount=0;
+                $mCount=0;
+                $fCount=0;
+            }
+            
+            if(isset($person->position->person_type_id) && $oldPersonTypeId == $person->position->person_type_id){
+                
+                foreach($modelGender as $k_gen => $gender){
+                     if($person->gender!=null && $person->gender  != $oldGender){
+                        $oldGender = $person->gender;
+                        $newCount=0;
+                        $mCount=0;
+                        $fCount=0;
+                    }
+                
+                    if($person->gender!=null && $person->gender == $oldGender){
+                        if($oldGender == 'm'){
+                            $mCount++;
+                            $modelPersonType[$oldPersonTypeId]->genderMaleCount = $mCount ;
+                        }elseif($oldGender == 'f'){
+                            $fCount++;
+                            $modelPersonType[$oldPersonTypeId]->genderFemaleCount = $fCount ;
+                        }
+                    }elseif($person->gender==null){
+                        //echo $oldPositionTypeId;
+                        $modelPersonType[$oldPersonTypeId]->noGenderCount += 1;
+                    }
+                }
+            }elseif(empty($person->position)){
+                foreach($modelGender as $k_gen => $gender){
+                     if($person->gender!=null && $person->gender  != $oldGender){
+                        $oldGender = $person->gender;
+                        $newCount=0;
+                    }
+                
+                    if($person->gender == $oldGender){
+                            
+                        if($oldGender == 'm'){
+    
+                            $modelPersonType[PersonSearch::NO_SELECT_POSITION]->genderMaleCount += 1;
+                        }elseif($oldGender == 'f'){
+                            
+                            $modelPersonType[PersonSearch::NO_SELECT_POSITION]->genderFemaleCount += 1;
+                        }
+                    }elseif($person->gender==null){
+                        //echo $oldPositionTypeId;
+                        $modelPersonType[PersonSearch::NO_SELECT_POSITION]->noGenderCount += 1;
+                    }
+                }
+            }
+            
+        }
+        
+        
+        
+        
+        
+        
+        $dataProvider = new ArrayDataProvider([
+            'allModels' => $modelPersonType,
             'pagination' => false,
             'sort' => [
                 'defaultOrder' => [
-                    'parent_id' => SORT_ASC,
-                    'sort'=>SORT_ASC,
+                    //'parent_id' => SORT_ASC,
+                    //'sort'=>SORT_ASC,
                 ]
             ],
         ]);
@@ -517,42 +645,11 @@ class PersonController extends Controller
             ]);
     }
     
-    
     public function actionRangeAge(){
         
         $range_age = [];
-        // $range_age[] = [
-        //     'title'=>'ต่ำกว่า 20',
-        //     'start'=>date('Y-m-d'),
-        //     'end'=>date('Y-m-d', strtotime('-20 year')),
-        //     'count_person'=>0
-        // ];
-        // $range_age[] = [
-        //     'title'=>'21 - 30',
-        //     'start'=>date('Y-m-d', strtotime('-20 year')),
-        //     'end'=>date('Y-m-d', strtotime('-30 year')),
-        //     'count_person'=>0
-        //     ];
-        // $range_age[] = [
-        //     'title'=>'31 - 40',
-        //     'start'=>date('Y-m-d', strtotime('-30 year')),
-        //     'end'=>date('Y-m-d', strtotime('-40 year')),
-        //     'count_person'=>0
-        //     ];
-        // $range_age[] = [
-        //     'title'=>'41 - 50',
-        //     'start'=>date('Y-m-d', strtotime('-40 year')),
-        //     'end'=>date('Y-m-d', strtotime('-50 year')),
-        //     'count_person'=>0
-        //     ];
-        // $range_age[] = [
-        //     'title'=>'51 - 60',
-        //     'start'=>date('Y-m-d', strtotime('-50 year')),
-        //     'end'=>date('Y-m-d', strtotime('-60 year')),
-        //     'count_person'=>0
-        //     ];
             
-            $range_age[] = [
+        $range_age[] = [
             'title'=>'ต่ำกว่า 20',
             'start'=>0,
             'end'=>20,
@@ -588,41 +685,46 @@ class PersonController extends Controller
             'data'=>[]
             ];
             
-        $models = Person::find()
-        ->select(['*','timestampdiff(YEAR,birthday,NOW()) as age'])
+        $range_age[PersonSearch::NO_BIRTHDAY] = [
+            'title'=>'ไม่ได้ระบุอายุ',
+            'start'=>0,
+            'end'=>0,
+            'count_person'=>0,
+            'data'=>[]
+            ];
+            
+        $modelPerson = Person::find()
+        ->select(['user_id', 'timestampdiff(YEAR,birthday,NOW()) as age','birthday'])
         ->orderBy(['birthday'=>SORT_DESC])
+        //->asArray()
         ->all();
+        
+        // echo "<pre>";
+        // print_r($modelPerson);
+        // exit();
         
         $index = 0;
         $count_person =0;
         $rangeOld = $range_age[$index];
         $data = [];
-        foreach($models as $model){
-            //echo strtotime($rangeOld['end']).' '.strtotime($model->birthday).'<br/>';
-            //echo $rangeOld['end'] .'>='. $model->age."<br/>";
-            
-            // if(!($model->age >= $rangeOld['start'] && $model->age <= $rangeOld['end'] )){
-            //     echo $rangeOld['start'] .'<='. $model->age." - ";
-            //     echo $rangeOld['end'] .'>='. $model->age."<br/>";
-            //     //echo $model->birthday.'<br/>';
-                
-            //     $data = [];
-            //     $index++;
-            //     $count_person=0;
-            //     if((count($range_age)-1)>$index){
-            //         $rangeOld = $range_age[$index];
-            //     }
-            //     //$rangeOld = (count($range_age)-1)>$index?$range_age[$index]:$range_age[$index-1];
-            // }elseif($model->age >= $rangeOld['start'] && $model->age <= $rangeOld['end'] ){
+        foreach($modelPerson as $model){
             
             
-                foreach($range_age as $key => $range){
-                    if($model->age >= $range['start'] && $model->age <= $range['end'] ){
-                        //$count_person+=1;
-                        $range_age[$key]['count_person'] += 1;
-                        $range_age[$key]['data'][] = ['id'=>$model->user_id,'age'=>$model->age];
+                    if($model->birthday!==null && $model->age > $range_age[$index]['end'] ){
+                        ++$index;
+                        $count_person = 0;
+                        $data = [];
                     }
-                }
+                    
+                    if($model->age >= $range_age[$index]['start'] && $model->age <= $range_age[$index]['end'] ){
+                        $count_person++;
+                        $range_age[$index]['count_person'] = $count_person;
+                        $range_age[$index]['data'][] = ['id'=>$model->user_id,'age'=>$model->age];
+                    }elseif($model->birthday === null){
+                        
+                        $range_age[PersonSearch::NO_BIRTHDAY]['count_person'] += 1;
+                        $range_age[PersonSearch::NO_BIRTHDAY]['data'][] = ['id'=>$model->user_id,'age'=>$model->age];
+                    }
             
         }
         
