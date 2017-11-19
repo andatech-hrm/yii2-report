@@ -35,7 +35,7 @@ echo Highcharts::widget([
             'plotBorderWidth' => null,
             'plotShadow' => false,
         ],
-        'title' => ['text' => 'แบ่งตามศาสนา'],
+        'title' => ['text' => 'ร้อยละบุคลากรแบ่งตามศาสนา'],
         'tooltip' => [
             'pointFormat' => '{series.name}: <b>{point.y}</b>'
         ],

@@ -66,7 +66,7 @@ echo Highcharts::widget([
         'data' => [
             'table' => 'datatable'
         ],
-        'title' => ['text' => 'อัตตราส่วนตำแหน่งแบ่งตามประเภ'],
+        'title' => ['text' => 'ร้อยละตำแหน่งแบ่งตามประเภ'],
         'yAxis' => [
             'allowDecimals' => false,
             'title' => [
