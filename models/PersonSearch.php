@@ -106,7 +106,7 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
         
         
         
-        if($this->start_age==0 && $this->end_age == 0){
+        if(isset($this->start_age) && isset($this->end_age) && $this->start_age==0 && $this->end_age == 0){
              $query->andWhere('birthday IS NULL');
         }elseif($this->start_age || $this->end_age){
              $query->andFilterWhere([">=","timestampdiff(YEAR,birthday,NOW())",$this->start_age]);
