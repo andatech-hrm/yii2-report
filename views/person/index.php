@@ -10,6 +10,8 @@ use kartik\export\ExportMenu;
 
 $this->title = Yii::t('andahrm/person', 'Person');
 $this->params['breadcrumbs'][] = $this->title;
+
+$get = Yii::$app->request->get('PersonSearch');
 ?>
 <?php
 $columns = [
@@ -60,11 +62,9 @@ $columns = [
 
 
 
-$gridColumns = [
-    // $columns['user_id'],
-    ['class' => '\kartik\grid\SerialColumn'],
-    $columns['citizen_id'],
-    [
+$gridColumns[] = ['class' => '\kartik\grid\SerialColumn'];
+$gridColumns[] = $columns['citizen_id'];
+$gridColumns[] = [
         'attribute' => 'fullname',
         'format' => 'raw',
         'value' => function($model) {
@@ -76,15 +76,22 @@ $gridColumns = [
                 '<small>'.$model->positionTitle.'<small></div> </div>';
             return $res;
         }
-    ],
+    ];
+
+//if(isset($get['start_age']) && isset($get['end_age'])){
+$gridColumns[] = [
+    'attribute' => 'age',
+    'value'=>'ageLabel'
+    ];
+//}
     
-    $columns['full_address_contact'],
-    //$columns['created_by'],
-    // [
-    //     'class' => '\kartik\grid\ActionColumn',
-    //      'template' => '{view} {delete}',
-    // ]
-];
+$gridColumns[] = $columns['full_address_contact'];
+// $gridColumns[] = $columns['created_by'];
+// $gridColumns[] = [
+//         'class' => '\kartik\grid\ActionColumn',
+//          'template' => '{view} {delete}',
+//     ];
+
 /*
 echo  ExportMenu::widget([
     'dataProvider' => $dataProvider,
