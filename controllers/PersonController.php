@@ -7,6 +7,7 @@ use yii\web\Controller;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use andahrm\person\models\Person;
+use andahrm\person\models\Detail as PersonDetail;
 use andahrm\person\models\Religion;
 use andahrm\person\models\Education;
 use andahrm\person\models\EducationLevel;
@@ -421,27 +422,22 @@ class PersonController extends Controller
     
     public function actionDegree(){
         
-        $modelUser = Education::find()
-            //->select('count(distinct(user_id))')
-            //->where("level_id = ss.id")
-            ->groupBy('user_id')
-            //->limit(1)
-            ->orderBy(['year_end'=>SORT_DESC])
+        $modelUser = Person::find()
+            ->joinWith('detail.education')
+            ->orderBy(['person_education.level_id'=>SORT_ASC])
             ->all();
+        $modelUser = ArrayHelper::index($modelUser, null, 'education.level_id');
         
-        $modelDegree = EducationLevel::find()
-        //->where(['=', "user_id",$find ])
-        //->distinct('degree')
-        //->select(['*','count_person'=>$modelUser])
-        //->from('person_education_level as ss')
-        //->select(['degree'])
-        //->orderBy('degree')
-        //->addSelect(['count_person'=>$find])
-        //->groupBy('degree');
-        //->asArray();
-        //echo $modelDegree->createCommand()->getRawSql();
-        ->all();
+        $modelDegree = EducationLevel::find()->all();
         
+        $newDegree = new EducationLevel();
+        $newDegree->id = PersonSearch::NO_DEGREE;
+        $newDegree->title = "ไม่ได้เลือกการศึกษา";
+        $newDegree->count_person = 0;
+        $modelDegree[]=$newDegree;
+        
+        // print_r($modelDegree);
+        // exit();
         
         $modelDegrees = [];
         $f_degree = $modelDegree[0]->id;
@@ -453,24 +449,17 @@ class PersonController extends Controller
                 $count = 0;
             }
             
-            foreach($modelUser as $user){
-                if($user->level_id == $f_degree)
-                $count++;
+            if($f_degree == $degree->id && isset($modelUser[$f_degree])){
+                $count = count($modelUser[$f_degree]);
+            }elseif($f_degree == PersonSearch::NO_DEGREE && $modelUser['']){
+                $count = count($modelUser['']);
             }
+            
             //if($count){
-                $degree->count_person = $count;
-                $modelDegrees[] = $degree;
+                $degree->count_person = $count?$count:0;
+                $modelDegrees[$f_degree] = $degree;
             //}
         }
-        
-        // ArrayHelper::multisort($modelDegrees, ['count_person'], [SORT_DESC]);
-        
-        //$modelDegrees = Education::find()->select(['degree','count_person'=>'count(user_id)'])->groupBy('degree')->all();
-        
-        // echo "<pre>";
-        // print_r($modelDegrees);
-        // exit();
-        
         $dataProvider = new ArrayDataProvider([
             'allModels'=>$modelDegrees,
             'pagination'=>false,

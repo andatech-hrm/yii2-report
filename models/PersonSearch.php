@@ -25,6 +25,7 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
     public $level_id;
     
     
+    const NO_DEGREE = '-1';
     const NO_GENDER = '-1';
     const NO_BIRTHDAY = '-1';
     const NO_SELECT_POSITION = '-1';
@@ -118,8 +119,12 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
              $query->andFilterWhere(['person_detail.religion_id'=>$this->religion_id]);
         }
         
-        if($this->level_id){
-             $query->joinWith(['education']);
+        
+        if($this->level_id == self::NO_DEGREE){
+             $query->joinWith(['detail']);
+             $query->andWhere('person_detail.person_education_id IS NULL');
+        }elseif($this->level_id){
+             $query->joinWith(['detail.education']);
              $query->andFilterWhere(['person_education.level_id'=>$this->level_id]);
         }
         
