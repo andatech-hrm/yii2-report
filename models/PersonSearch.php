@@ -25,6 +25,7 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
     public $level_id;
     
     
+    const NO_RELIGION = '-1';
     const NO_DEGREE = '-1';
     const NO_GENDER = '-1';
     const NO_BIRTHDAY = '-1';
@@ -114,7 +115,10 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
              $query->andFilterWhere(["<=","timestampdiff(YEAR,birthday,NOW())",$this->end_age]);
         }
         
-        if($this->religion_id){
+        if($this->religion_id == self::NO_RELIGION){
+             $query->joinWith(['detail']);
+             $query->andWhere('person_detail.religion_id IS NULL');
+        }elseif($this->religion_id){
              $query->joinWith(['detail']);
              $query->andFilterWhere(['person_detail.religion_id'=>$this->religion_id]);
         }

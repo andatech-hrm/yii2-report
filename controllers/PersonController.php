@@ -408,7 +408,40 @@ class PersonController extends Controller
     }
     
     public function actionReligion(){
-        $modelReligion = Religion::find()->all();
+        
+        $modelPerson = Person::find()->joinWith('detail')->orderBy(['person_detail.religion_id'=>SORT_ASC])->all();
+        $modelPerson = ArrayHelper::index($modelPerson,null,'detail.religion_id');
+        // echo "<pre>";
+        // print_r($modelPerson);
+        // exit();
+        
+        
+        $modelReligion = Religion::find()->orderBy(['id'=>SORT_ASC])->all();
+        $newReligion = new Religion();
+        $newReligion->id = PersonSearch::NO_RELIGION;
+        $newReligion->title = 'ไม่ได้เลือกศาสนา';
+        $newReligion->count_person = 0;
+        $modelReligion[] = $newReligion;
+        
+        // echo "<pre>";
+        // print_r($modelReligion);
+        // exit();
+        
+        $old_relagion_id = $modelReligion[0]->id;
+        foreach ($modelReligion as $religion) {
+            if($old_relagion_id != $religion->id ){
+                $old_relagion_id = $religion->id;
+            }
+            
+            
+            if($old_relagion_id == $religion->id && isset($modelPerson[$old_relagion_id])){
+                $religion->count_person = count($modelPerson[$old_relagion_id]);
+            }elseif($religion->id == PersonSearch::NO_RELIGION && $modelPerson['']){
+                $religion->count_person = count($modelPerson['']);
+            }
+        }
+        
+        
         
         $dataProvider = new ArrayDataProvider([
             'allModels'=>$modelReligion
