@@ -113,6 +113,7 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
         }elseif($this->start_age || $this->end_age){
              $query->andFilterWhere([">=","timestampdiff(YEAR,birthday,NOW())",$this->start_age]);
              $query->andFilterWhere(["<=","timestampdiff(YEAR,birthday,NOW())",$this->end_age]);
+             $query->orderBy(['birthday'=>SORT_DESC]);
         }
         
         if($this->religion_id == self::NO_RELIGION){
