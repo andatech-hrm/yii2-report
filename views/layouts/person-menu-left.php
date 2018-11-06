@@ -8,8 +8,8 @@ use mdm\admin\components\Helper;
  $this->beginContent('@andahrm/report/views/layouts/main.php'); 
  $module = $this->context->module->id;
 ?>
-<div class="row hidden-print">
-    <div class="col-md-3"> 
+<div class="row">
+    <div class="col-md-3 hidden-print"> 
       
       
 
