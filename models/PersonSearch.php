@@ -181,6 +181,8 @@ class PersonSearch extends \andahrm\person\models\PersonSearch
             ->orFilterWhere(['like', 'local_tambol.name', $this->full_address_contact])
             ->orFilterWhere(['like', 'local_amphur.name', $this->full_address_contact])
             ->orFilterWhere(['like', 'local_province.name', $this->full_address_contact]);
+        
+        $query->andWhere(['!=', 'person.status', Person::STATUS_RETIRED]);
 
         return $dataProvider;
     }
