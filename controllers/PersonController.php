@@ -6,6 +6,8 @@ use Yii;
 use yii\web\Controller;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
+use yii\helpers\ArrayHelper;
+###
 use andahrm\person\models\Person;
 use andahrm\person\models\Detail as PersonDetail;
 use andahrm\person\models\Religion;
@@ -23,7 +25,7 @@ use andahrm\report\models\PersonType;
 use andahrm\report\models\PersonLeave;
 use andahrm\report\models\YearSearch;
 use andahrm\report\models\Contract;
-use yii\helpers\ArrayHelper;
+use andahrm\person\models\PersonRetired;
 
 /**
  * Default controller for the `report` module
@@ -162,6 +164,96 @@ class PersonController extends Controller {
 
 
         return $this->render('type', [
+                    'model' => $modelPersonType,
+                    'dataProvider' => $dataProvider,
+                    'models' => $models
+        ]);
+        }
+
+
+        public function actionTypeRetired() {
+
+        $models['year-search'] = new YearSearch();
+        $models['year-search']->load(Yii::$app->request->get());
+
+
+        $modelPerson = PersonRetired::find()
+                //->select('count(distinct(person.user_id))')
+                //->distinct('person.user_id')
+                ->joinWith('position');
+        //->where('position.person_type_id = person_type.id');
+        if ($models['year-search']->year !== null && !empty($models['year-search']->year)) {
+            $y = intval($models['year-search']->year);
+            $dateBetween = FiscalYear::getDateBetween($y);
+
+            $modelPerson->andWhere(['>=', 'DATE(person_retired.retired_date)', $dateBetween->date_start])
+                    ->andWhere(['<=', 'DATE(person_retired.retired_date)', $dateBetween->date_end]);
+        }
+
+        $modelPerson = $modelPerson
+                //->andWhere(['!=', 'person.status', Person::STATUS_RETIRED])
+                //->orderBy(['position.person_type_id' => SORT_ASC])
+                ->all();
+
+
+
+
+        $modelPersonType = PersonType::find()->andWhere(['!=', 'parent_id', '0'])
+                ->orderBy(['id' => SORT_ASC])
+                ->all();
+
+
+        $newModel = new PersonType();
+        $newModel->id = PersonSearch::NO_SELECT_POSITION;
+        $newModel->title = 'อื่นๆ - ไม่ได้ระบุตำแหน่ง';
+
+        $modelPersonType[] = $newModel;
+
+        $newModelPersonType = [];
+        foreach ($modelPersonType as $personType) {
+            $personType->count_person = 0;
+            $newModelPersonType[$personType->id] = $personType;
+        }
+        $modelPersonType = $newModelPersonType;
+
+        // print_r($modelPersonType);
+        // exit();
+
+        $keys = array_keys($modelPersonType);
+//echo $array[$keys[0]];
+
+
+        $oldPersonTypeId = $modelPersonType[$keys[0]]->id;
+        $newCount = 0;
+        foreach ($modelPerson as $person) {
+            if (isset($person->position->person_type_id) && $oldPersonTypeId != $person->position->person_type_id) {
+                $oldPersonTypeId = $person->position->person_type_id;
+                $newCount = 0;
+            }
+            // echo $oldPositionTypeId;
+            // exit();
+            if (isset($person->position->person_type_id) && $oldPersonTypeId == $person->position->person_type_id) {
+                $newCount++;
+                $modelPersonType[$oldPersonTypeId]->count_person = $newCount;
+            } elseif (empty($person->position)) {
+                //echo $oldPositionTypeId;
+                $modelPersonType[PersonSearch::NO_SELECT_POSITION]->count_person = ++$modelPersonType[PersonSearch::NO_SELECT_POSITION]->count_person;
+            }
+        }
+
+        $dataProvider = new ArrayDataProvider([
+            'allModels' => $modelPersonType,
+            'pagination' => false,
+            'sort' => [
+                'defaultOrder' => [
+                //'parent_id' => SORT_ASC,
+                //'sort'=>SORT_ASC,
+                ]
+            ],
+        ]);
+
+
+        return $this->render('type-retired', [
                     'model' => $modelPersonType,
                     'dataProvider' => $dataProvider,
                     'models' => $models
