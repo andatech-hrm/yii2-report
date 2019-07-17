@@ -105,7 +105,7 @@ class PersonSearch extends \andahrm\person\models\PersonSearch {
             $modelRetired = PersonRetired::find()->joinWith('position')
                             ->where(['position.person_type_id' => $this->person_type_retired_id])->asArray()->all();
             $modelRetired = ArrayHelper::getColumn($modelRetired, 'user_id');
-            $model->andWhere(['user_id' => $modelRetired]);
+            $model->andWhere(['person.user_id' => $modelRetired]);
         }
 
 
